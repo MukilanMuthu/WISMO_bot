@@ -1,0 +1,9 @@
+import type { NextConfig } from "next";
+
+// Transpile the workspace contract package so the SPA can import its TS types directly.
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
+  transpilePackages: ["@wismo/shared"],
+};
+
+export default nextConfig;

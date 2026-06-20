@@ -1,0 +1,1454 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "c186dbe0f483594ebbc9c9523f742cbcccef4ce3",
+  "generatedAt": "2026-06-20T05:53:58.754Z",
+  "files": {
+    ".env.example": {
+      "filePath": ".env.example",
+      "contentHash": "9ba4f4c62015a89ebd2c47dc717003ac2268dbb8b754425e704b5e2bc68a8f63",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 9,
+      "hasStructuralAnalysis": true
+    },
+    ".understand-anything/.understandignore": {
+      "filePath": ".understand-anything/.understandignore",
+      "contentHash": "7a5469c7e8d9b280a99cba747ebfbf885adbf3af38e075858d29c9812301e14c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 34,
+      "hasStructuralAnalysis": false
+    },
+    "AGENTS.md": {
+      "filePath": "AGENTS.md",
+      "contentHash": "d0f71aa63dc5f1d6fdf0550837c9900e9c1d0b5b17063afdefea18955e7a0668",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "CONTEXT.md": {
+      "filePath": "CONTEXT.md",
+      "contentHash": "78867cf11a7b804faaecd0f777dd3b37d8cc00d355417824a0f5786512b1bdd7",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 30,
+      "hasStructuralAnalysis": true
+    },
+    "docker-compose.yml": {
+      "filePath": "docker-compose.yml",
+      "contentHash": "6176b18643c74f4cbd7fafcdf9ed9a70ee8e2b874fa6edcf71d5c1f799ca74fe",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 20,
+      "hasStructuralAnalysis": true
+    },
+    "next-env.d.ts": {
+      "filePath": "next-env.d.ts",
+      "contentHash": "85ae5aee75f011967cf2d25cbc342f62d69314e9d925f7f4aa3456fc2cffcca6",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 7,
+      "hasStructuralAnalysis": true
+    },
+    "next.config.ts": {
+      "filePath": "next.config.ts",
+      "contentHash": "3e16b7b2df43e738d4569ab993916032e2ae2f2014094ad07cb469478051adef",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next",
+          "specifiers": [
+            "NextConfig"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 9,
+      "hasStructuralAnalysis": true
+    },
+    "package.json": {
+      "filePath": "package.json",
+      "contentHash": "95d2936e31122d570f298c5f313f5c3a2be14a3a58140136c9724d48382884dd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 39,
+      "hasStructuralAnalysis": true
+    },
+    "prisma/migrations/20260619134847_init/migration.sql": {
+      "filePath": "prisma/migrations/20260619134847_init/migration.sql",
+      "contentHash": "ca78c930b4c4cce8140545627c3728cf19e2c2f1e6a819ae0ae447ccff23db2e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 149,
+      "hasStructuralAnalysis": true
+    },
+    "prisma/migrations/20260619190000_add_line_items_and_password_auth/migration.sql": {
+      "filePath": "prisma/migrations/20260619190000_add_line_items_and_password_auth/migration.sql",
+      "contentHash": "a639115d67158dc201f1ba4f14f9c212fa74d82b676a57c7eae0ce9f7ceaebeb",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 24,
+      "hasStructuralAnalysis": true
+    },
+    "prisma/migrations/migration_lock.toml": {
+      "filePath": "prisma/migrations/migration_lock.toml",
+      "contentHash": "99836963713b4f5b269ad49af0ed3d7b0b2e336115c2f92dc9ac683d139d0900",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 4,
+      "hasStructuralAnalysis": true
+    },
+    "prisma/schema.prisma": {
+      "filePath": "prisma/schema.prisma",
+      "contentHash": "0925fc79117a919591a9339e51a88a07eeb71936a2305afaed356d8d16adc17b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 151,
+      "hasStructuralAnalysis": false
+    },
+    "prisma/seed.ts": {
+      "filePath": "prisma/seed.ts",
+      "contentHash": "d3b98cd2dc0a37e133a23ef42a05db38cdca9c2cd1b6ea3c0d542a7f30de0e22",
+      "functions": [
+        {
+          "name": "main",
+          "params": [],
+          "exported": false,
+          "lineCount": 99
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@prisma/client",
+          "specifiers": [
+            "FinancialStatus",
+            "FulfillmentStatus",
+            "PrismaClient",
+            "UserRole"
+          ]
+        },
+        {
+          "source": "bcryptjs",
+          "specifiers": [
+            "hash"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 116,
+      "hasStructuralAnalysis": true
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "119a10e952fa2d2cd24467f6ddec70bb2fe2770e178043dd023ccbf134434760",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 23,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/admin/page.tsx": {
+      "filePath": "src/app/admin/page.tsx",
+      "contentHash": "1adb6354cca345991208492e1d8e09a948d34f606d99c89370e1e95e5af26e6a",
+      "functions": [
+        {
+          "name": "AdminPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 49
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "AlertTriangle",
+            "Box",
+            "PhoneCall",
+            "TicketCheck"
+          ]
+        },
+        {
+          "source": "@/components/app-header",
+          "specifiers": [
+            "AppHeader"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "requireUser"
+          ]
+        },
+        {
+          "source": "@/lib/dashboard",
+          "specifiers": [
+            "getDashboardData"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminPage"
+      ],
+      "totalLines": 56,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/admin/dashboard/route.ts": {
+      "filePath": "src/app/api/admin/dashboard/route.ts",
+      "contentHash": "d6221608ee3fe7fd843cb6bc7ab5ff4019ed5e31024cf4128097188f112ec141",
+      "functions": [
+        {
+          "name": "GET",
+          "params": [],
+          "exported": true,
+          "lineCount": 8
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "requireUser"
+          ]
+        },
+        {
+          "source": "@/lib/dashboard",
+          "specifiers": [
+            "getDashboardData"
+          ]
+        },
+        {
+          "source": "@/lib/http",
+          "specifiers": [
+            "apiError"
+          ]
+        }
+      ],
+      "exports": [
+        "GET"
+      ],
+      "totalLines": 15,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/customer/orders/[orderId]/route.ts": {
+      "filePath": "src/app/api/customer/orders/[orderId]/route.ts",
+      "contentHash": "dfb962d04419b8e0d23d2a5ceb594bcefeccc5e511626ecfe9b928657c86d94c",
+      "functions": [
+        {
+          "name": "GET",
+          "params": [
+            "_request",
+            "context"
+          ],
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "requireUser"
+          ]
+        },
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        },
+        {
+          "source": "@/lib/http",
+          "specifiers": [
+            "apiError"
+          ]
+        }
+      ],
+      "exports": [
+        "GET"
+      ],
+      "totalLines": 18,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/customer/orders/route.ts": {
+      "filePath": "src/app/api/customer/orders/route.ts",
+      "contentHash": "3ea4a13cf3b47f2222d872a9e2dbb0868844c1329f33af18fd0bb34778f84549",
+      "functions": [
+        {
+          "name": "GET",
+          "params": [],
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "requireUser"
+          ]
+        },
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        },
+        {
+          "source": "@/lib/http",
+          "specifiers": [
+            "apiError"
+          ]
+        }
+      ],
+      "exports": [
+        "GET"
+      ],
+      "totalLines": 16,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/login/route.ts": {
+      "filePath": "src/app/api/login/route.ts",
+      "contentHash": "06ddb47e13a20a8694b2fc725f8cc8a2527680bce3ca58e9a8eb2263569c3564",
+      "functions": [
+        {
+          "name": "POST",
+          "params": [
+            "request"
+          ],
+          "exported": true,
+          "lineCount": 21
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "bcryptjs",
+          "specifiers": [
+            "compare"
+          ]
+        },
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextRequest",
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "zod",
+          "specifiers": [
+            "z"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "createSessionToken",
+            "SESSION_COOKIE_NAME"
+          ]
+        },
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        "POST"
+      ],
+      "totalLines": 34,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/logout/route.ts": {
+      "filePath": "src/app/api/logout/route.ts",
+      "contentHash": "71a4d4e6eb0432a1f4db42f517b15a7b9ab1fb0c6573c0778c0a6a7d614e7673",
+      "functions": [
+        {
+          "name": "GET",
+          "params": [
+            "request"
+          ],
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextRequest",
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "SESSION_COOKIE_NAME"
+          ]
+        }
+      ],
+      "exports": [
+        "GET"
+      ],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/retell/functions/create-support-ticket/route.ts": {
+      "filePath": "src/app/api/retell/functions/create-support-ticket/route.ts",
+      "contentHash": "7dab460d1d5e0a9824aa7781d3cf67359948efbf1c58666954455a9aca1325a5",
+      "functions": [
+        {
+          "name": "POST",
+          "params": [
+            "request"
+          ],
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextRequest",
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "zod",
+          "specifiers": [
+            "z"
+          ]
+        },
+        {
+          "source": "@/lib/http",
+          "specifiers": [
+            "apiError"
+          ]
+        },
+        {
+          "source": "@/lib/retell",
+          "specifiers": [
+            "getRetellArgs",
+            "getRetellCallId",
+            "requireRetellFunctionAuth"
+          ]
+        },
+        {
+          "source": "@/lib/wismo",
+          "specifiers": [
+            "createEscalationTicket"
+          ]
+        }
+      ],
+      "exports": [
+        "POST"
+      ],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/retell/functions/get-tracking-status/route.ts": {
+      "filePath": "src/app/api/retell/functions/get-tracking-status/route.ts",
+      "contentHash": "dfe148c4fc8d4bbd444c65b6c9f35a4e00c1414763ab430103652e06746d6a72",
+      "functions": [
+        {
+          "name": "POST",
+          "params": [
+            "request"
+          ],
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextRequest",
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "zod",
+          "specifiers": [
+            "z"
+          ]
+        },
+        {
+          "source": "@/lib/http",
+          "specifiers": [
+            "apiError"
+          ]
+        },
+        {
+          "source": "@/lib/retell",
+          "specifiers": [
+            "getRetellArgs",
+            "getRetellCallId",
+            "requireRetellFunctionAuth"
+          ]
+        },
+        {
+          "source": "@/lib/wismo",
+          "specifiers": [
+            "trackingForCall"
+          ]
+        }
+      ],
+      "exports": [
+        "POST"
+      ],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/retell/functions/list-recent-orders/route.ts": {
+      "filePath": "src/app/api/retell/functions/list-recent-orders/route.ts",
+      "contentHash": "0911573221867458662ac58f1a252608a40025619f8bbeeb247a706955b8cb13",
+      "functions": [
+        {
+          "name": "POST",
+          "params": [
+            "request"
+          ],
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextRequest",
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "zod",
+          "specifiers": [
+            "z"
+          ]
+        },
+        {
+          "source": "@/lib/http",
+          "specifiers": [
+            "apiError"
+          ]
+        },
+        {
+          "source": "@/lib/retell",
+          "specifiers": [
+            "getRetellArgs",
+            "getRetellCallId",
+            "requireRetellFunctionAuth"
+          ]
+        },
+        {
+          "source": "@/lib/wismo",
+          "specifiers": [
+            "listRecentOrders"
+          ]
+        }
+      ],
+      "exports": [
+        "POST"
+      ],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/retell/functions/resolve-order/route.ts": {
+      "filePath": "src/app/api/retell/functions/resolve-order/route.ts",
+      "contentHash": "e3f90e9d5fc88a7da9aaa9fd98bc9771f874b361c20a5beb3712323be752a2c4",
+      "functions": [
+        {
+          "name": "POST",
+          "params": [
+            "request"
+          ],
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextRequest",
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "zod",
+          "specifiers": [
+            "z"
+          ]
+        },
+        {
+          "source": "@/lib/http",
+          "specifiers": [
+            "apiError"
+          ]
+        },
+        {
+          "source": "@/lib/retell",
+          "specifiers": [
+            "getRetellArgs",
+            "getRetellCallId",
+            "requireRetellFunctionAuth"
+          ]
+        },
+        {
+          "source": "@/lib/wismo",
+          "specifiers": [
+            "resolveOrder"
+          ]
+        }
+      ],
+      "exports": [
+        "POST"
+      ],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/retell/web-call/route.ts": {
+      "filePath": "src/app/api/retell/web-call/route.ts",
+      "contentHash": "a6033b095330cca01f6d5d1189c566d643cf7b4a3b6664f2f843efb99335ea27",
+      "functions": [
+        {
+          "name": "POST",
+          "params": [
+            "request"
+          ],
+          "exported": true,
+          "lineCount": 41
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "zod",
+          "specifiers": [
+            "z"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "requireUser"
+          ]
+        },
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        },
+        {
+          "source": "@/lib/http",
+          "specifiers": [
+            "apiError"
+          ]
+        }
+      ],
+      "exports": [
+        "POST"
+      ],
+      "totalLines": 51,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/retell/webhook/route.ts": {
+      "filePath": "src/app/api/retell/webhook/route.ts",
+      "contentHash": "3731f24ebcb876f694e63a93129d6c148e0aec96b9f3407481aa0263f56061de",
+      "functions": [
+        {
+          "name": "POST",
+          "params": [
+            "request"
+          ],
+          "exported": true,
+          "lineCount": 21
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextRequest",
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        },
+        {
+          "source": "@/lib/http",
+          "specifiers": [
+            "apiError"
+          ]
+        },
+        {
+          "source": "@/lib/retell",
+          "specifiers": [
+            "requireRetellFunctionAuth"
+          ]
+        }
+      ],
+      "exports": [
+        "POST"
+      ],
+      "totalLines": 28,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/globals.css": {
+      "filePath": "src/app/globals.css",
+      "contentHash": "d343fa85017c8fafd4f023e65036371104044aad4b064158c60824d1ea98bd44",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 210,
+      "hasStructuralAnalysis": false
+    },
+    "src/app/layout.tsx": {
+      "filePath": "src/app/layout.tsx",
+      "contentHash": "f6066fab721644ad8412740f60052aae4154cb8218d2e7b49a8e8419888a70b7",
+      "functions": [
+        {
+          "name": "RootLayout",
+          "params": [
+            "{ children }"
+          ],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next",
+          "specifiers": [
+            "Metadata"
+          ]
+        },
+        {
+          "source": "./globals.css",
+          "specifiers": []
+        }
+      ],
+      "exports": [
+        "metadata",
+        "RootLayout"
+      ],
+      "totalLines": 17,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/orders/[orderId]/page.tsx": {
+      "filePath": "src/app/orders/[orderId]/page.tsx",
+      "contentHash": "53a8a322a9f52cad7ca15fec9b450036a5a080ac75c8bc71593dede9af3ea99e",
+      "functions": [
+        {
+          "name": "OrderDetailPage",
+          "params": [
+            "{ params }"
+          ],
+          "exported": true,
+          "lineCount": 50
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/link",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "ArrowLeft",
+            "ExternalLink",
+            "MapPin",
+            "Package",
+            "Truck"
+          ]
+        },
+        {
+          "source": "next/navigation",
+          "specifiers": [
+            "notFound"
+          ]
+        },
+        {
+          "source": "@/components/app-header",
+          "specifiers": [
+            "AppHeader"
+          ]
+        },
+        {
+          "source": "@/components/voice-call-button",
+          "specifiers": [
+            "VoiceCallButton"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "requireUser"
+          ]
+        },
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        "OrderDetailPage"
+      ],
+      "totalLines": 62,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/orders/page.tsx": {
+      "filePath": "src/app/orders/page.tsx",
+      "contentHash": "262039c15cf5af5788a5c42110169ad988a11ee5905b6ae8e8064f89a7fc6592",
+      "functions": [
+        {
+          "name": "money",
+          "params": [
+            "value",
+            "currency"
+          ],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "OrdersPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 48
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/link",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "ArrowRight",
+            "Box",
+            "CalendarDays",
+            "PackageCheck"
+          ]
+        },
+        {
+          "source": "@/components/app-header",
+          "specifiers": [
+            "AppHeader"
+          ]
+        },
+        {
+          "source": "@/components/voice-call-button",
+          "specifiers": [
+            "VoiceCallButton"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "requireUser"
+          ]
+        },
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        "OrdersPage"
+      ],
+      "totalLines": 62,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/page.tsx": {
+      "filePath": "src/app/page.tsx",
+      "contentHash": "bc0e0ff5523a0130738ffdc565ba67374b8fcaaac19d0084ee79db62c4a59922",
+      "functions": [
+        {
+          "name": "LoginPage",
+          "params": [
+            "{ searchParams }"
+          ],
+          "exported": true,
+          "lineCount": 35
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "ArrowRight",
+            "Headphones",
+            "LockKeyhole"
+          ]
+        }
+      ],
+      "exports": [
+        "LoginPage"
+      ],
+      "totalLines": 39,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/app-header.tsx": {
+      "filePath": "src/components/app-header.tsx",
+      "contentHash": "b95cb6f5f70483139f2a75df0f01544c79255f105dd732b255d51935794a4876",
+      "functions": [
+        {
+          "name": "AppHeader",
+          "params": [
+            "{ mode }"
+          ],
+          "exported": true,
+          "lineCount": 16
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/link",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Headphones",
+            "LogOut"
+          ]
+        }
+      ],
+      "exports": [
+        "AppHeader"
+      ],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/voice-call-button.tsx": {
+      "filePath": "src/components/voice-call-button.tsx",
+      "contentHash": "866596888add471ba195f1f2359e8c681de78499c3302dcc832209efe0bff554",
+      "functions": [
+        {
+          "name": "VoiceCallButton",
+          "params": [
+            "{ orderId }"
+          ],
+          "exported": true,
+          "lineCount": 57
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useRef",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Mic",
+            "PhoneOff",
+            "Radio"
+          ]
+        },
+        {
+          "source": "retell-client-js-sdk",
+          "specifiers": [
+            "RetellWebClient"
+          ]
+        }
+      ],
+      "exports": [
+        "VoiceCallButton"
+      ],
+      "totalLines": 67,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/auth.ts": {
+      "filePath": "src/lib/auth.ts",
+      "contentHash": "6c982be4fa872a5f6f77546676069291dadf18bab8a8c27775929c9449024ee8",
+      "functions": [
+        {
+          "name": "sessionSecret",
+          "params": [],
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "createSessionToken",
+          "params": [
+            "user"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "requireUser",
+          "params": [
+            "expectedRole"
+          ],
+          "exported": true,
+          "lineCount": 19
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/headers",
+          "specifiers": [
+            "cookies"
+          ]
+        },
+        {
+          "source": "jose",
+          "specifiers": [
+            "SignJWT",
+            "jwtVerify"
+          ]
+        },
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        "SESSION_COOKIE_NAME",
+        "createSessionToken",
+        "requireUser"
+      ],
+      "totalLines": 44,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/dashboard.ts": {
+      "filePath": "src/lib/dashboard.ts",
+      "contentHash": "e71b41e864f3af95c01c1e5f43d35ceed4aac67a67d53fccab2f7ecc4c79a473",
+      "functions": [
+        {
+          "name": "getDashboardData",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        "getDashboardData"
+      ],
+      "totalLines": 14,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/db.ts": {
+      "filePath": "src/lib/db.ts",
+      "contentHash": "7afd5d8fa8925ff222f01a79ef4a857a481b941a706dbcb14c672c30b5844ea3",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@prisma/client",
+          "specifiers": [
+            "PrismaClient"
+          ]
+        }
+      ],
+      "exports": [
+        "db"
+      ],
+      "totalLines": 12,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/http.ts": {
+      "filePath": "src/lib/http.ts",
+      "contentHash": "b1b70e17042f2d5131364159f4bbc45e7d7ebbf9d649379b72957bc9a5631183",
+      "functions": [
+        {
+          "name": "apiError",
+          "params": [
+            "error"
+          ],
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "zod",
+          "specifiers": [
+            "ZodError"
+          ]
+        }
+      ],
+      "exports": [
+        "apiError"
+      ],
+      "totalLines": 17,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/retell.ts": {
+      "filePath": "src/lib/retell.ts",
+      "contentHash": "94be69ce8709169e5d30ae6225506facc3b6fec923510c8294e52b8977362064",
+      "functions": [
+        {
+          "name": "requireRetellFunctionAuth",
+          "params": [
+            "request"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "getRetellCallId",
+          "params": [
+            "body"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "getRetellArgs",
+          "params": [
+            "body"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextRequest"
+          ]
+        }
+      ],
+      "exports": [
+        "requireRetellFunctionAuth",
+        "getRetellCallId",
+        "getRetellArgs"
+      ],
+      "totalLines": 28,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/trackingmore.ts": {
+      "filePath": "src/lib/trackingmore.ts",
+      "contentHash": "0c1e570644fc95a1f9a8da87a318a50cbea51aba79b5f617ab4f09fdef80fc7f",
+      "functions": [
+        {
+          "name": "asRecord",
+          "params": [
+            "value"
+          ],
+          "returnType": "Record<string, unknown>",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "firstShipment",
+          "params": [
+            "payload"
+          ],
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "trackingEvents",
+          "params": [
+            "shipment"
+          ],
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "extractSummary",
+          "params": [
+            "payload",
+            "trackingUrl"
+          ],
+          "returnType": "TrackingSummary",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "getTrackingStatus",
+          "params": [
+            "target"
+          ],
+          "exported": true,
+          "lineCount": 29
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        "getTrackingStatus"
+      ],
+      "totalLines": 78,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/wismo-guardrails.ts": {
+      "filePath": "src/lib/wismo-guardrails.ts",
+      "contentHash": "92eea25275dbce19ef69127956fc3d4f1e1dec5b43390b571e88eb7a06ac844b",
+      "functions": [
+        {
+          "name": "normalizeOrderNumber",
+          "params": [
+            "rawOrderNumber"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "trackingTargetsForOrder",
+          "params": [
+            "order"
+          ],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "nextListingState",
+          "params": [
+            "cursor",
+            "repeatCount",
+            "action"
+          ],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "INVALID_ORDER_LIMIT",
+        "LISTING_REPEAT_LIMIT",
+        "ORDERS_PER_PAGE",
+        "normalizeOrderNumber",
+        "trackingTargetsForOrder",
+        "nextListingState"
+      ],
+      "totalLines": 53,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/wismo.ts": {
+      "filePath": "src/lib/wismo.ts",
+      "contentHash": "4cdcd6aaf0146b610b1ed62a08d28cf66ae35f8a7a1a8dd7d4d7729cf7b86bef",
+      "functions": [
+        {
+          "name": "requireVoiceCall",
+          "params": [
+            "retellCallId"
+          ],
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "resolveOrder",
+          "params": [
+            "retellCallId",
+            "rawOrderNumber"
+          ],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "listRecentOrders",
+          "params": [
+            "retellCallId",
+            "action"
+          ],
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "trackingForCall",
+          "params": [
+            "retellCallId",
+            "requestedOrderId"
+          ],
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "createEscalationTicket",
+          "params": [
+            "retellCallId",
+            "reason"
+          ],
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@prisma/client",
+          "specifiers": [
+            "CallStatus",
+            "Prisma"
+          ]
+        },
+        {
+          "source": "@/lib/db",
+          "specifiers": [
+            "db"
+          ]
+        },
+        {
+          "source": "@/lib/trackingmore",
+          "specifiers": [
+            "getTrackingStatus"
+          ]
+        },
+        {
+          "source": "./wismo-guardrails",
+          "specifiers": [
+            "INVALID_ORDER_LIMIT",
+            "LISTING_REPEAT_LIMIT",
+            "ORDERS_PER_PAGE",
+            "normalizeOrderNumber",
+            "nextListingState",
+            "trackingTargetsForOrder"
+          ]
+        }
+      ],
+      "exports": [
+        "resolveOrder",
+        "listRecentOrders",
+        "trackingForCall",
+        "createEscalationTicket"
+      ],
+      "totalLines": 118,
+      "hasStructuralAnalysis": true
+    },
+    "tracking_details.txt": {
+      "filePath": "tracking_details.txt",
+      "contentHash": "fe3ad4368739519880f32af370a77a47a5b5cf5f736b8f418b3a5bc1bd937cb6",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 125,
+      "hasStructuralAnalysis": false
+    },
+    "tsconfig.json": {
+      "filePath": "tsconfig.json",
+      "contentHash": "9528321fe13e6d2897b5a6ac6977e8f0d026be49fbe9e7ee206335bc7b1ee22f",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 22,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

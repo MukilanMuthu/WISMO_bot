@@ -1,0 +1,124 @@
+YunExpress Tracking NO.:YT2615600701000721
+Last Mile Tracking NO.:G20216581231
+Customer Order NO.:WY0143826060500001
+Delivery Status:Delivered（Calendar Days: 6.7d / Working Days: 4.7d）
+Events: 2026-06-12 16:29:12 Delivered----Hoppers Crossing
+Origin:CN
+Destination:AU
+Additional notes: Last Mile Website: https://www.ytoglobal.com/
+20  2026-06-12 16:29:12     Delivered----Hoppers Crossing
+19  2026-06-11 19:17:33     Out for delivery----WERRIBEE FACILITY
+18  2026-06-11 18:19:39     Arriving at the delivery station----WERRIBEE FACILITY
+17  2026-06-11 09:12:32     Parcel Scanned----MELBOURNE FACILITY
+16  2026-06-11 09:12:07     Received----MELBOURNE FACILITY
+15  2026-06-11 09:11:04     Collected----MELBOURNE FACILITY
+14  2026-06-11 09:10:30     Received for processing----MELBOURNE FACILITY
+13  2026-06-10 17:14:00     Delivered to local carrier----MELBOURNE, VICTORIA, AU
+12  2026-06-09 11:14:00     International flight has arrived----AU
+11  2026-06-09 09:59:00     Clearance processing completed - Import----MELBOURNE, VICTORIA, AU
+10  2026-06-09 09:07:00     Start Customs Clearence----MELBOURNE, VICTORIA, AU
+9   2026-06-09 00:30:00     International flight has departed
+8   2026-06-06 20:24:46     Arrived at the origin international airport----Mainland China, CN
+7   2026-06-06 16:54:47     Shipment is in transit to next facility----Mainland China, CN
+6   2026-06-06 16:01:09     The country of origin commences customs declaration.----Mainland China, CN
+5   2026-06-06 06:07:32     Departed from sort facility----Mainland China, CN
+4   2026-06-06 02:37:24     Arrived at sort facility----Mainland China, CN
+3   2026-06-06 00:38:27     Departed from sort facility----Mainland China, CN
+2   2026-06-06 00:12:15     Arrived at origin facility----Mainland China, CN
+1   2026-06-05 07:48:13     Shipment information received
+
+YunExpress Tracking NO.:YT2615600701445942
+Last Mile Tracking NO.:34YEK857516701000910909
+Customer Order NO.:WY0143826060500002
+Delivery Status:Delivered（Calendar Days: 10.6d / Working Days: 6.6d）
+Events: 2026-06-16 14:26:11 Delivered - Left in a safe place----Diamond Creek,AU
+Origin:CN
+Destination:AU
+Additional notes: Last Mile Website:https://auspost.com.au/
+20  2026-06-16 14:26:11     Delivered - Left in a safe place----Diamond Creek,AU
+19  2026-06-16 08:48:17     Onboard for delivery----Diamond Creek,AU
+18  2026-06-16 05:10:05     Item processed at sorting facility----AU
+17  2026-06-16 02:27:47     Arrived at facility----AU
+16  2026-06-16 01:14:59     In transit to next facility----AU
+15  2026-06-15 15:01:37     Item processed at sorting facility----AU
+14  2026-06-15 14:54:16     Item processed at sorting facility----AU
+13  2026-06-14 16:37:00     Delivered to local carrier----MELBOURNE, VICTORIA, AU
+12  2026-06-13 07:44:00     International flight has arrived----AU
+11  2026-06-13 04:21:00     Clearance processing completed - Import----MELBOURNE, VICTORIA, AU
+10  2026-06-13 03:22:00     Start Customs Clearence----MELBOURNE, VICTORIA, AU
+9   2026-06-11 15:07:00     International flight has departed
+8   2026-06-10 11:01:00     Arrived at the origin international airport----Mainland China, CN
+7   2026-06-10 10:03:14     The country of origin commences customs declaration.----Mainland China, CN
+6   2026-06-10 06:31:02     Shipment is in transit to next facility----Mainland China, CN
+5   2026-06-09 00:32:44     Departed from sort facility----Mainland China, CN
+4   2026-06-06 02:35:16     Arrived at sort facility----Mainland China, CN
+3   2026-06-06 00:38:27     Departed from sort facility----Mainland China, CN
+2   2026-06-06 00:10:48     Arrived at origin facility----Mainland China, CN
+1   2026-06-05 08:57:12     Shipment information received
+
+
+YunExpress Tracking NO.:YT2615600702138264
+Last Mile Tracking NO.:6060626349451
+Customer Order NO.:WY0143826060500003
+Delivery Status:Delivered（Calendar Days: 10.6d / Working Days: 6.6d）
+Events: 2026-06-16 14:02:15 Delivered.----Bunyip,AU
+Origin:CN
+Destination:AU
+Additional notes: Last Mile Website:https://www.imile.com/
+20  2026-06-16 14:02:15     Delivered.----Bunyip,AU
+19  2026-06-16 06:44:43     【MEL CSP 3】Shipment out for delivery.----MEL CSP 3
+18  2026-06-16 05:11:55     【MEL CSP 3】Dispatch task assigned to DA.----MEL CSP 3
+17  2026-06-15 18:03:24     【MEL CSP 3】Arrived.----MEL CSP 3
+16  2026-06-15 13:49:40     【Melbourne Center】Arrived.----Melbourne Center
+15  2026-06-15 13:49:10     【Melbourne Center】Received.----Melbourne Center
+14  2026-06-14 15:46:00     Delivered to local carrier----MELBOURNE, VICTORIA, AU
+13  2026-06-13 05:51:00     International flight has arrived----AU
+12  2026-06-13 00:24:00     Clearance processing completed - Import----MELBOURNE, VICTORIA, AU
+11  2026-06-12 23:31:00     Start Customs Clearence----MELBOURNE, VICTORIA, AU
+10  2026-06-11 22:39:00     International flight has departed
+9   2026-06-11 21:36:29     Clearence processing completed - Export
+8   2026-06-10 14:00:00     Arrived at the origin international airport----Mainland China, CN
+7   2026-06-10 10:04:31     The country of origin commences customs declaration.----Mainland China, CN
+6   2026-06-09 17:31:25     Shipment is in transit to next facility----Mainland China, CN
+5   2026-06-09 00:30:34     Departed from sort facility----Mainland China, CN
+4   2026-06-06 02:35:33     Arrived at sort facility----Mainland China, CN
+3   2026-06-06 00:38:27     Departed from sort facility----Mainland China, CN
+2   2026-06-06 00:02:02     Arrived at origin facility----Mainland China, CN
+1   2026-06-05 09:30:12     Shipment information received
+
+
+YunExpress Tracking NO.:YT2615900701077418
+Last Mile Tracking NO.:34YEK858511601000910904
+Customer Order NO.:WY0143826060800001
+Delivery Status:Transit
+Events: 2026-06-19 08:37:10 Awaiting collection at PORTLAND POST SHOP----AU
+Origin:CN
+Destination:AU
+Additional notes: Last Mile Website:https://auspost.com.au/
+27  2026-06-19 08:37:10    Awaiting collection at PORTLAND POST SHOP----AU
+26  2026-06-19 07:08:09    Awaiting collection at PORTLAND POST SHOP----AU
+25  2026-06-19 07:08:08    Transferred to PORTLAND POST SHOP----AU
+24  2026-06-19 07:06:11    Item transferred to Australia Post outlet, due to----AU
+23  2026-06-19 05:52:09    Arrived at facility----AU
+22  2026-06-19 00:01:39    In transit to next facility----AU
+21  2026-06-18 16:27:11    Item processed at sorting facility----AU
+20  2026-06-18 15:39:24    Arrived at facility----AU
+19  2026-06-18 13:14:06    In transit to next facility----AU
+18  2026-06-18 02:25:52    In transit to next facility----AU
+17  2026-06-17 14:56:27    Item processed at sorting facility----AU
+16  2026-06-17 01:16:31    Incorrectly sorted and forwarded to correct location----AU
+15  2026-06-17 01:11:31    Item processed at sorting facility----AU
+14  2026-06-14 16:37:00    Delivered to local carrier----MELBOURNE, VICTORIA, AU
+13  2026-06-13 10:57:00    International flight has arrived----AU
+12  2026-06-13 06:13:00    Clearance processing completed - Import----MELBOURNE, VICTORIA, AU
+11  2026-06-13 05:21:00    Start Customs Clearence----MELBOURNE, VICTORIA, AU
+10  2026-06-13 00:19:00    International flight has departed
+9   2026-06-12 23:14:32     Clearence processing completed - Export
+8   2026-06-10 18:52:01     Arrived at the origin international airport----Mainland China, CN
+7   2026-06-10 14:38:49     The country of origin commences customs declaration.----Mainland China, CN
+6   2026-06-10 14:22:03     Shipment is in transit to next facility----Mainland China, CN
+5   2026-06-10 03:10:31     Departed from sort facility----Mainland China, CN
+4   2026-06-09 02:26:38     Arrived at sort facility----Mainland China, CN
+3   2026-06-09 00:10:26     Departed from sort facility----Mainland China, CN
+2   2026-06-08 23:11:04     Arrived at origin facility----Mainland China, CN
+1   2026-06-08 07:57:09     Shipment information received
