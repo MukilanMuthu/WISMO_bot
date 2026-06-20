@@ -47,7 +47,7 @@ In Retell dashboard:
 | `track_order` | Function | Call `get_tracking_status` without `orderId`; backend uses order resolved into call state. Only call this when the customer explicitly asks where the order/parcel is — it is the one function that costs a TrackingMore API call. |
 | `speak_tracking` | Conversation | Speak every returned shipment's item names, carrier, status, latest event, date/location, and estimated delivery when present. Convey non-empty `notes` naturally, then ask whether anything should be repeated. |
 | `list_orders` | Function | Call `list_recent_orders` with `START`; read order number, ordered date, amount, currency only. |
-| `list_more` | Function | Call `list_recent_orders` with `MORE`. |
+| `list_more` | Function | Call `list_recent_orders` with `MORE`. `LISTING_LIMIT_REACHED` -> `escalate` (returned after asking for more twice past the end of the list). |
 | `repeat_orders` | Function | Call `list_recent_orders` with `REPEAT`. `LISTING_LIMIT_REACHED` -> `escalate`. |
 | `escalate` | Function | Call `create_support_ticket`, confirm ticket creation, then end call. |
 | `tracking_error` | Conversation + Function | Apologize, create support ticket with reason `Tracking provider unavailable`, then end call. |

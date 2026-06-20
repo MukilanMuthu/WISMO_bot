@@ -163,8 +163,13 @@ The body may either pass `callId` directly (for manual testing) or Retell's full
   `action` enum: `START` | `MORE` | `REPEAT`
 - Paginates 5 orders at a time; `REPEAT` is capped at 2 globally per call
   (`code: "LISTING_LIMIT_REACHED"` after that)
+- `MORE` past the end of the list (i.e. the previous response already had `hasMore: false`) is a
+  separate budget, also capped at 2 globally per call: the first two such requests return
+  `code: "ORDERS_LISTED"` with an empty `orders[]`; the third returns `code: "LISTING_LIMIT_REACHED"`
 - Response: `code: "ORDERS_LISTED"` with `orders[]` (id, orderNumber, createdAt, orderTotal,
-  currency), `hasMore`, `repeatCount`
+  currency), `hasMore`, `repeatCount`, `moreCount` (count of past-the-end `MORE` requests used so
+  far this call, 0–2; mirrors `repeatCount`'s semantics for the separate repeat-page budget).
+  `code: "LISTING_LIMIT_REACHED"` also includes both `repeatCount` and `moreCount`.
 
 ### `POST /retell/functions/create-support-ticket`
 - Body:

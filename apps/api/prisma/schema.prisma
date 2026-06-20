@@ -118,6 +118,9 @@ model VoiceCall {
   invalidOrderAttempts Int         @default(0)
   listingRepeatCount   Int         @default(0)
   listingCursor        Int         @default(0)
+  // Remaining "ask for more after the list is already exhausted" attempts before the call ends
+  // gracefully, same exhaustion pattern as listingRepeatCount but counting down from 2.
+  moreOffenseCount     Int         @default(2)
   startedAt            DateTime    @default(now())
   endedAt              DateTime?
   customer             User        @relation(fields: [customerId], references: [id], onDelete: Cascade)

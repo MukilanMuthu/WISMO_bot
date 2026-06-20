@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LISTING_REPEAT_LIMIT, normalizeOrderNumber, nextListingState, ORDERS_PER_PAGE, trackingTargetsForOrder } from "./wismo-guardrails";
+import { LISTING_REPEAT_LIMIT, normalizeOrderNumber, nextListingState, nextMoreOffenseState, ORDERS_PER_PAGE, trackingTargetsForOrder } from "./wismo-guardrails";
 
 // Cover speech normalization and voice-cost counters without requiring PostgreSQL.
 describe("WISMO guardrails", () => {
@@ -19,6 +19,19 @@ describe("WISMO guardrails", () => {
 
   it("resets listing cursor when a listing starts", () => {
     expect(nextListingState(10, 1, "START")).toEqual({ cursor: 0, repeatCount: 1 });
+  });
+
+  it("leaves the more-offense budget untouched when the list isn't exhausted", () => {
+    expect(nextMoreOffenseState(2, false)).toEqual({ moreOffenseCount: 2, exhausted: false });
+  });
+
+  it("counts down the more-offense budget when asked for more past the end of the list", () => {
+    expect(nextMoreOffenseState(2, true)).toEqual({ moreOffenseCount: 1, exhausted: false });
+    expect(nextMoreOffenseState(1, true)).toEqual({ moreOffenseCount: 0, exhausted: false });
+  });
+
+  it("exhausts once asked for more again with no budget left", () => {
+    expect(nextMoreOffenseState(0, true)).toEqual({ moreOffenseCount: 0, exhausted: true });
   });
 
   it("uses required order tracking for a normal shipment", () => {

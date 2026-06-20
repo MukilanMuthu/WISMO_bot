@@ -1,6 +1,7 @@
 export const INVALID_ORDER_LIMIT = 2;
 export const LISTING_REPEAT_LIMIT = 2;
 export const ORDERS_PER_PAGE = 5;
+export const MORE_OFFENSE_LIMIT = 2;
 
 // Normalize speech-friendly order numbers into the stored uppercase hash-prefixed form.
 export function normalizeOrderNumber(rawOrderNumber: string) {
@@ -62,4 +63,13 @@ export function nextListingState(cursor: number, repeatCount: number, action: "S
     cursor: action === "START" ? 0 : action === "MORE" ? cursor + ORDERS_PER_PAGE : cursor,
     repeatCount: action === "REPEAT" ? repeatCount + 1 : repeatCount,
   };
+}
+
+// Count down a separate per-call budget for asking "more" after the list is already exhausted
+// (distinct from the repeat-the-same-page budget above). Only ticks when the customer actually
+// hit the end of the list and asked for more anyway; exhausted once that happens with no budget left.
+export function nextMoreOffenseState(moreOffenseCount: number, hitEndOfList: boolean) {
+  if (!hitEndOfList) return { moreOffenseCount, exhausted: false };
+  if (moreOffenseCount <= 0) return { moreOffenseCount, exhausted: true };
+  return { moreOffenseCount: moreOffenseCount - 1, exhausted: false };
 }

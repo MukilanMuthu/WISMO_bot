@@ -4,9 +4,11 @@ import { getTrackingStatus } from "@/lib/trackingmore";
 import {
   INVALID_ORDER_LIMIT,
   LISTING_REPEAT_LIMIT,
+  MORE_OFFENSE_LIMIT,
   ORDERS_PER_PAGE,
   normalizeOrderNumber,
   nextListingState,
+  nextMoreOffenseState,
   trackingTargetsForOrder,
 } from "./wismo-guardrails";
 
@@ -71,7 +73,7 @@ export async function listRecentOrders(retellCallId: string, action: "START" | "
   const { cursor, repeatCount } = nextState;
 
   if (repeatCount > LISTING_REPEAT_LIMIT) {
-    return { code: "LISTING_LIMIT_REACHED" as const, repeatCount };
+    return { code: "LISTING_LIMIT_REACHED" as const, repeatCount, moreCount: MORE_OFFENSE_LIMIT - call.moreOffenseCount };
   }
 
   const orders = await db.order.findMany({
@@ -83,13 +85,25 @@ export async function listRecentOrders(retellCallId: string, action: "START" | "
   });
 
   const total = await db.order.count({ where: { customerId: call.customerId } });
-  await db.voiceCall.update({ where: { id: call.id }, data: { listingCursor: cursor, listingRepeatCount: repeatCount } });
+  const hitEndOfList = action === "MORE" && orders.length === 0;
+  const offenseState = nextMoreOffenseState(call.moreOffenseCount, hitEndOfList);
+  const moreCount = MORE_OFFENSE_LIMIT - offenseState.moreOffenseCount;
+
+  if (offenseState.exhausted) {
+    return { code: "LISTING_LIMIT_REACHED" as const, repeatCount, moreCount };
+  }
+
+  await db.voiceCall.update({
+    where: { id: call.id },
+    data: { listingCursor: cursor, listingRepeatCount: repeatCount, moreOffenseCount: offenseState.moreOffenseCount },
+  });
 
   return {
     code: "ORDERS_LISTED" as const,
     orders: orders.map((order) => ({ ...order, orderTotal: order.orderTotal.toString() })),
     hasMore: cursor + orders.length < total,
     repeatCount,
+    moreCount,
   };
 }
 
