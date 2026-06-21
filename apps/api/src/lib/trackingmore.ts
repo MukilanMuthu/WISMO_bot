@@ -14,20 +14,44 @@ function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
 }
 
-// Select first shipment regardless of TrackingMore response envelope variant.
-function firstShipment(payload: unknown) {
-  const root = asRecord(payload);
-  const data = asRecord(root.data ?? root);
-  const items = Array.isArray(data.items) ? data.items : Array.isArray(data.data) ? data.data : [];
-  return asRecord(items[0] ?? data);
-}
-
 // Select event collection used by either legacy or current carrier payloads.
 function trackingEvents(shipment: Record<string, unknown>) {
   const originInfo = (shipment.origin_info ?? {}) as Record<string, unknown>;
   if (Array.isArray(originInfo.trackinfo)) return originInfo.trackinfo.map(asRecord);
   if (Array.isArray(shipment.track_info)) return shipment.track_info.map(asRecord);
   return [];
+}
+
+// Rank how much usable detail a candidate shipment record carries, so duplicate registrations
+// of one tracking number (re-created across sessions under a different guessed courier_code)
+// don't silently pick whichever happens to be array index 0.
+function completenessScore(shipment: Record<string, unknown>) {
+  const events = trackingEvents(shipment);
+  const latest = asRecord(events[0]);
+  let score = 0;
+  if (latest.location) score += 2;
+  if (shipment.origin_country) score += 1;
+  if (events.length > 0) score += 1;
+  return score;
+}
+
+// Select the most complete shipment regardless of TrackingMore response envelope variant: `data`
+// itself can be the shipment array (GET /trackings/get), or an object wrapping `.items`/`.data`
+// (other endpoints/versions).
+function firstShipment(payload: unknown) {
+  const root = asRecord(payload);
+  const rawData = root.data ?? root;
+  const items = Array.isArray(rawData)
+    ? rawData
+    : Array.isArray(asRecord(rawData).items)
+      ? (asRecord(rawData).items as unknown[])
+      : Array.isArray(asRecord(rawData).data)
+        ? (asRecord(rawData).data as unknown[])
+        : [];
+
+  if (items.length === 0) return asRecord(rawData);
+  const candidates = items.map(asRecord);
+  return candidates.reduce((best, candidate) => (completenessScore(candidate) > completenessScore(best) ? candidate : best));
 }
 
 // Read likely field variants because TrackingMore payloads can differ by carrier and endpoint version.
