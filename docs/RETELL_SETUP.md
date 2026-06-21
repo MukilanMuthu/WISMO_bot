@@ -35,25 +35,116 @@ In Retell dashboard:
 6. Test both known-order and general-order paths.
 7. Publish flow only after all required transitions work.
 
-## 2. Build minimum node graph
+## 2. Build the node graph
 
-| Node | Type | Purpose and transition |
-| --- | --- | --- |
-| `start` | Conversation | Greet customer. If `{{has_known_order}}` is `true`, go to `load_known_order`; otherwise go to `ask_order_number`. |
-| `load_known_order` | Function | Call `get_order_details` with `orderId={{order_id}}`. Free (no TrackingMore). Branch on returned `code`, then go to `speak_order_details`. |
-| `ask_order_number` | Conversation | Ask for visible order number, capture it, then call `resolve_order`. |
-| `resolve_order` | Function | Send captured `orderNumber`. Free (no TrackingMore). `ORDER_FOUND` -> `speak_order_details`; `ORDER_NOT_FOUND` -> `ask_order_number`; `RETRY_LIMIT_REACHED` -> `list_orders`. |
-| `speak_order_details` | Conversation | `resolve_order`/`get_order_details` already returned items, carrier, notes, estimated delivery — speak from that response directly, no extra call. Ask if customer wants live tracking status; if yes go to `track_order`, else end/escalate as needed. |
-| `track_order` | Function | Call `get_tracking_status` without `orderId`; backend uses order resolved into call state. Only call this when the customer explicitly asks where the order/parcel is — it is the one function that costs a TrackingMore API call. |
-| `speak_tracking` | Conversation | Speak every returned shipment's item names, carrier, status, latest event, date/location, and estimated delivery when present. Convey non-empty `notes` naturally, then ask whether anything should be repeated. |
-| `list_orders` | Function | Call `list_recent_orders` with `START`; read order number, ordered date, amount, currency only. |
-| `list_more` | Function | Call `list_recent_orders` with `MORE`. `LISTING_LIMIT_REACHED` -> `escalate` (returned after asking for more twice past the end of the list). |
-| `repeat_orders` | Function | Call `list_recent_orders` with `REPEAT`. `LISTING_LIMIT_REACHED` -> `escalate`. |
-| `escalate` | Function | Call `create_support_ticket`, confirm ticket creation, then end call. |
-| `tracking_error` | Conversation + Function | Apologize, create support ticket with reason `Tracking provider unavailable`, then end call. |
-| `end` | End | Close call politely. |
+Retell's flow builder gives you a fixed node palette (Conversation, Function, Logic Split, Extract Variable, Ending, etc — left sidebar). A custom function maps to **one reusable Function node** per function created in the dashboard; its own `+Transition`/`Else` rows branch directly on the function's response fields — no separate node needed for that part. Where the doc's logical graph needs the *same* function called with different fixed arguments (e.g. `list_recent_orders` with `action: "START"` vs `"MORE"` vs `"REPEAT"`), **duplicate that Function node on the canvas** and pin a different literal value into its parameter per instance — this matches **Rigid Mode** transition flexibility (recommended over letting the LLM pick the enum live).
 
-Do not rely on prompt text to enforce retry/repeat limits. Backend persists those counters.
+Each Function node's Transition condition box is **free text**, not a variable picker — type `{{variable_name}}` literally (e.g. `{{result_code}} = "ORDER_FOUND"`). But a response field only becomes available as `{{variable_name}}` once it's registered on the **custom function definition itself**, under "Store Fields as Variables" (see §2b) — there is no separate per-node Extract Variable step for response fields. The dedicated **Extract Variable** node type is reserved for things with no backend field to map, like capturing the order number the customer just spoke out loud.
+
+| # | Node type (palette) | Label | What goes in it |
+| --- | --- | --- | --- |
+| 1 | *(built-in)* | `Begin` | already present |
+| 2 | Logic Split | `Known Order Check` | Transition: `{{has_known_order}} = "true"` → 4. Else → 3 |
+| 3 | Conversation | `Ask Order Number` | Prompt: "Greet the customer, ask for their order number." Transition: always → 5 |
+| 4 | Function (`get_order_details`) | `Load Known Order` | Pin `orderId` = `{{order_id}}` (dynamic variable Retell already receives from `/retell/web-call`, per `apps/api/src/routes/retell.ts:37-43`). Transition: `{{result_code}} = "ORDER_FOUND"` → 8. Else → 3 |
+| 5 | Extract Variable | `Capture Order Number` | New variable `order_number` — instruction: "the order number the customer just said, normalized." Transition: always → 6 |
+| 6 | Function (`resolve_order`) | `Resolve Order` | Pin `orderNumber` = `{{order_number}}`. Transitions: `{{result_code}} = "ORDER_FOUND"` → 8; `{{result_code}} = "ORDER_NOT_FOUND"` → 3 (loop back); Else (`RETRY_LIMIT_REACHED`) → 9 |
+| 8 | Conversation | `Speak Order Details` | Prompt: "Speak items, carrier, notes, estimated delivery from the last function result. Ask if they want live tracking." Transitions: "wants tracking" → 11; "done" → 16 |
+| 9 | Function (`list_recent_orders`) | `List Orders` | Pin `action` = `"START"`. Transition: always → 10 (only one outcome, `ORDERS_LISTED`, on a fresh `START`) |
+| 9b | *(duplicate of 9)* | `List More` | Pin `action` = `"MORE"`. Transitions: `{{result_code}} = "ORDERS_LISTED"` → 10; Else (`LISTING_LIMIT_REACHED`) → 14 |
+| 9c | *(duplicate of 9)* | `Repeat Orders` | Pin `action` = `"REPEAT"`. Transitions: `{{result_code}} = "ORDERS_LISTED"` → 10; Else (`LISTING_LIMIT_REACHED`) → 14 |
+| 10 | Conversation | `Speak Listed Orders` | Prompt: "Speak each order number/date/amount/currency from the result. Ask: state an order number, more, or repeat." Transitions by intent: states number → 5; "more" → 9b; "repeat" → 9c |
+| 11 | Function (`get_tracking_status`) | `Track Order` | No pinned params — backend falls back to the call's already-resolved order server-side (`apps/api/src/lib/wismo.ts:111-114`). Transitions: `{{result_code}} = "TRACKING_FOUND"` → 12. Else (`TRACKING_ERROR`) → 13 |
+| 12 | Conversation | `Speak Tracking` | Prompt: "Speak every shipment's status/event/date/location, then notes." Transition: always → 16 |
+| 13 | Function (`create_support_ticket`) | `Tracking Error Ticket` | Pin `reason` = `"Tracking provider unavailable"`. Transition: always → 16 |
+| 14 | *(duplicate of 13)* | `Escalate` | Leave `reason` unpinned, or pin a generic string like `"Listing limit reached"`. Transition: always → 16 |
+| 16 | Ending | `End Call` | terminal |
+
+Node 4/6's success transition routes **directly** to node 8 — no intermediate "capture order id" step needed, because `get_order_details`/`resolve_order`'s own "Store Fields as Variables" mapping (§2b) already overwrites `{{order_id}}` with the resolved order's database id as a side effect of the call.
+
+Backend persists three **independent** counters behind these transitions — `invalidOrderAttempts` (wrong/unrecognized order number, cap 2), `listingRepeatCount` (`REPEAT` action, cap 2), `moreOffenseCount` (`MORE` past the end of the list, cap 2). Never share one budget across them in the flow design, and never invent a fourth counter for off-topic questions — the global prompt is the only guard against those, the backend has no code path for it.
+
+### 2a. Store Fields as Variables (per function)
+
+Every custom function's edit dialog has a "Store Fields as Variables" section (below "Parameters", above "Test") — left column is the variable name you choose, right column is the JSON path into that function's response body. Without this, `{{result_code}}` etc used in §2's transitions above won't resolve to anything. Configure each function once:
+
+| Custom function | Variable name | Response path | Why |
+| --- | --- | --- | --- |
+| `get_order_details` | `result_code` | `code` | branch on §2 node 4 |
+| `get_order_details` | `order_id` | `id` | overwrites the call's known order id, only present when `code = "ORDER_FOUND"` |
+| `resolve_order` | `result_code` | `code` | branch on §2 node 6 |
+| `resolve_order` | `order_id` | `id` | same as above, set on first successful resolution |
+| `get_tracking_status` | `result_code` | `code` | branch on §2 node 11 |
+| `list_recent_orders` | `result_code` | `code` | branch on §2 nodes 9b/9c (node 9's first-ever `START` call only ever returns `ORDERS_LISTED`, so no branch needed there) |
+| `create_support_ticket` | `result_code` | `code` | optional — both nodes 13/14 always transition to `End Call` regardless, since `create_support_ticket` only ever returns `TICKET_CREATED` (`apps/api/src/lib/wismo.ts:160-172`) |
+
+Map `order_id` to the same variable name on both `get_order_details` and `resolve_order` — both represent "the order the conversation is currently about," and whichever function resolves it last should be the value subsequent calls (like `get_tracking_status`) implicitly rely on server-side.
+
+### 2b. Node graph diagram
+
+```mermaid
+flowchart TD
+    Begin --> KnownOrderCheck{{"Logic Split:
+Known Order Check"}}
+    KnownOrderCheck -->|has_known_order = true| LoadKnownOrder["Function: get_order_details
+Load Known Order
+pin orderId={{order_id}}"]
+    KnownOrderCheck -->|else| AskOrderNumber(["Conversation:
+Ask Order Number"])
+
+    LoadKnownOrder -->|result_code = ORDER_FOUND| SpeakOrderDetails
+    LoadKnownOrder -->|else| AskOrderNumber
+
+    AskOrderNumber --> CaptureNumber["Extract Variable:
+order_number"]
+    CaptureNumber --> ResolveOrder["Function: resolve_order
+Resolve Order
+pin orderNumber={{order_number}}"]
+
+    ResolveOrder -->|result_code = ORDER_FOUND| SpeakOrderDetails
+    ResolveOrder -->|result_code = ORDER_NOT_FOUND| AskOrderNumber
+    ResolveOrder -->|else: RETRY_LIMIT_REACHED| ListOrders
+
+    SpeakOrderDetails(["Conversation:
+Speak Order Details"])
+    SpeakOrderDetails -->|wants tracking| TrackOrder["Function: get_tracking_status
+Track Order"]
+    SpeakOrderDetails -->|done| EndCall(["Ending:
+End Call"])
+
+    TrackOrder -->|result_code = TRACKING_FOUND| SpeakTracking(["Conversation:
+Speak Tracking"])
+    TrackOrder -->|else: TRACKING_ERROR| TrackingErrorTicket["Function: create_support_ticket
+Tracking Error Ticket
+pin reason=fixed string"]
+
+    SpeakTracking --> EndCall
+    TrackingErrorTicket --> EndCall
+
+    ListOrders["Function: list_recent_orders
+List Orders
+pin action=START"] -->|always| SpeakListed
+    SpeakListed(["Conversation:
+Speak Listed Orders"])
+    SpeakListed -->|states number| CaptureNumber
+    SpeakListed -->|more| ListMore
+    SpeakListed -->|repeat| RepeatOrders
+
+    ListMore["Function: list_recent_orders
+List More
+pin action=MORE"]
+    ListMore -->|result_code = ORDERS_LISTED| SpeakListed
+    ListMore -->|else: LISTING_LIMIT_REACHED| Escalate
+
+    RepeatOrders["Function: list_recent_orders
+Repeat Orders
+pin action=REPEAT"]
+    RepeatOrders -->|result_code = ORDERS_LISTED| SpeakListed
+    RepeatOrders -->|else: LISTING_LIMIT_REACHED| Escalate
+
+    Escalate["Function: create_support_ticket
+Escalate"] --> EndCall
+```
 
 ## 3. Create five custom functions
 
@@ -65,6 +156,19 @@ For every custom function:
 - Use public HTTPS tunnel URL, never localhost.
 
 For every custom function below, the API expects five functions. `get_order_details` and `resolve_order` are free — DB-only, no TrackingMore call. `get_tracking_status` is the only function that costs a TrackingMore API call; wire it only behind explicit "where is my order" intent, not into the initial order-load path.
+
+Create each function **once** in the dashboard, then reuse it across multiple Function nodes in the flow graph with a different fixed argument per node — this is why §2's graph has 8 Function nodes but only 5 functions exist:
+
+| Function node(s) in §2 | Custom function | Fixed arg per node |
+| --- | --- | --- |
+| `Load Known Order` | `get_order_details` | — |
+| `Resolve Order` | `resolve_order` | — |
+| `Track Order` | `get_tracking_status` | — |
+| `List Orders` | `list_recent_orders` | `action: "START"` |
+| `List More` | `list_recent_orders` | `action: "MORE"` |
+| `Repeat Orders` | `list_recent_orders` | `action: "REPEAT"` |
+| `Escalate` | `create_support_ticket` | `reason` = whatever triggered escalation |
+| `Tracking Error Ticket` | `create_support_ticket` | `reason: "Tracking provider unavailable"` |
 
 | Function | URL | Parameter schema |
 | --- | --- | --- |
