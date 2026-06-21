@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type { Request, Response, NextFunction } from "express";
 
 // Authenticate custom-function calls with a separate secret from the Retell management API key.
@@ -6,6 +7,32 @@ export function requireRetellFunctionAuth(req: Request, _res: Response, next: Ne
   const provided = req.headers["x-retell-function-secret"];
 
   if (!expected || !provided || provided !== expected) {
+    next(new Error("UNAUTHORIZED"));
+    return;
+  }
+  next();
+}
+
+// Webhook deliveries (call_started/call_ended/call_analyzed) carry no custom header; Retell
+// signs them with HMAC-SHA256 over rawBody+timestamp using the account API key instead.
+// See https://docs.retellai.com/features/secure-webhook
+export function requireRetellWebhookAuth(req: Request, _res: Response, next: NextFunction) {
+  const apiKey = process.env.RETELL_API_KEY;
+  const rawBody = (req as Request & { rawBody?: string }).rawBody;
+  const signatureHeader = req.headers["x-retell-signature"];
+  const match = typeof signatureHeader === "string" ? signatureHeader.match(/^v=(\d+),d=(.+)$/) : null;
+
+  if (!apiKey || !rawBody || !match) {
+    next(new Error("UNAUTHORIZED"));
+    return;
+  }
+
+  const [, timestamp, digest] = match;
+  const withinFiveMinutes = Math.abs(Date.now() - Number(timestamp)) <= 5 * 60 * 1000;
+  const expected = createHmac("sha256", apiKey).update(rawBody + timestamp).digest();
+  const provided = Buffer.from(digest, "hex");
+
+  if (!withinFiveMinutes || expected.length !== provided.length || !timingSafeEqual(expected, provided)) {
     next(new Error("UNAUTHORIZED"));
     return;
   }

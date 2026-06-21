@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireUser, type AuthedRequest } from "@/middleware/auth";
 import { asyncHandler } from "@/middleware/error";
-import { getRetellArgs, getRetellCallId, requireRetellFunctionAuth } from "@/middleware/retell-auth";
+import { getRetellArgs, getRetellCallId, requireRetellFunctionAuth, requireRetellWebhookAuth } from "@/middleware/retell-auth";
 import { createEscalationTicket, getOrderDetails, listRecentOrders, resolveOrder, trackingForCall } from "@/lib/wismo";
 
 const router = Router();
@@ -60,7 +60,7 @@ router.post(
 // Store Retell lifecycle events and update terminal call state for dashboard visibility.
 router.post(
   "/webhook",
-  requireRetellFunctionAuth,
+  requireRetellWebhookAuth,
   asyncHandler(async (req, res) => {
     const body = req.body as Record<string, unknown>;
     const call = body.call as Record<string, unknown> | undefined;

@@ -11,7 +11,7 @@ const app = express();
 
 // Allow the separated Next.js frontend to call the API; Bearer auth means no cross-site cookies.
 app.use(cors({ origin: process.env.WEB_ORIGIN ?? "http://localhost:3000" }));
-app.use(express.json());
+app.use(express.json({ verify: (req, _res, buf) => { (req as typeof req & { rawBody?: string }).rawBody = buf.toString("utf-8"); } }));
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });

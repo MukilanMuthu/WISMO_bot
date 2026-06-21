@@ -82,6 +82,7 @@ async function main() {
         shippingCarrier: fixture.order.carrierName,
         trackingNumber: fixture.order.trackingId,
         trackingUrl,
+        trackingMoreCreated: true,
         shippedAt: new Date(createdAt.getTime() + 24 * 60 * 60 * 1000),
         estimatedDelivery: new Date(createdAt.getTime() + 10 * 24 * 60 * 60 * 1000),
         notes: fixture.notes,

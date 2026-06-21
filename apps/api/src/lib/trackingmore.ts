@@ -45,9 +45,10 @@ function extractSummary(payload: unknown, trackingUrl: string): TrackingSummary 
   };
 }
 
-// TrackingMore returns this meta.code when a tracking_number/courier_code pair is already
-// registered; treat it as success and fall through to GET instead of throwing.
-const ALREADY_EXISTS_CODE = 4016;
+// TrackingMore returns one of these meta.code values when a tracking_number/courier_code pair
+// is already registered (4101 confirmed live: "Tracking No. already exists."); treat either as
+// success and fall through to GET instead of throwing.
+const ALREADY_EXISTS_CODES = [4016, 4101];
 
 type TrackingMoreMeta = { code?: number; message?: string };
 type TrackingMoreContext = { orderId: string; trackingUrl: string; apiKey: string; baseUrl: string };
@@ -140,7 +141,7 @@ export async function getTrackingStatus(target: {
     return { ...extractSummary(createPayload, target.trackingUrl), trackingMoreCreated: true };
   }
 
-  if (createPayload.meta?.code !== ALREADY_EXISTS_CODE) {
+  if (!ALREADY_EXISTS_CODES.includes(createPayload.meta?.code ?? -1)) {
     const message = `TRACKINGMORE_HTTP_${createResponse.status}: ${JSON.stringify(createPayload.meta ?? createPayload).slice(0, 500)}`;
     await db.trackingLookupLog.create({ data: { orderId: target.orderId, succeeded: false, responseStatus: createResponse.status, errorMessage: message } });
     throw new Error(message);
