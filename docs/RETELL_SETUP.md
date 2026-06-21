@@ -55,7 +55,7 @@ In Retell dashboard:
 
 Do not rely on prompt text to enforce retry/repeat limits. Backend persists those counters.
 
-## 3. Create four custom functions
+## 3. Create five custom functions
 
 For every custom function:
 
@@ -64,7 +64,7 @@ For every custom function:
 - Leave `Payload: args only` disabled. Full payload includes `call.call_id`, needed to load backend call state.
 - Use public HTTPS tunnel URL, never localhost.
 
-For every custom function below, the API expects four (now five) functions. `get_order_details` and `resolve_order` are free — DB-only, no TrackingMore call. `get_tracking_status` is the only function that costs a TrackingMore API call; wire it only behind explicit "where is my order" intent, not into the initial order-load path.
+For every custom function below, the API expects five functions. `get_order_details` and `resolve_order` are free — DB-only, no TrackingMore call. `get_tracking_status` is the only function that costs a TrackingMore API call; wire it only behind explicit "where is my order" intent, not into the initial order-load path.
 
 | Function | URL | Parameter schema |
 | --- | --- | --- |
