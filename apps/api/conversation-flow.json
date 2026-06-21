@@ -1,0 +1,289 @@
+{
+  "global_prompt": "You are an ecommerce order-status assistant. Help only with orders owned by authenticated customer context supplied by backend. Never invent order or tracking data. Keep responses brief and suitable for speech. Follow node transitions and backend result codes exactly. When backend returns an error or escalation result, do not work around it.",
+  "start_speaker": "agent",
+  "start_node_id": "known_order_check",
+  "model_choice": { "type": "cascading", "model": "gpt-5-nano" },
+  "tools": [
+    {
+      "tool_id": "tool_get_order_details",
+      "type": "custom",
+      "name": "get_order_details",
+      "description": "Load the customer's currently-known order by id, no TrackingMore cost.",
+      "url": "{{env:PUBLIC_APP_URL}}/retell/functions/get-order-details",
+      "method": "POST",
+      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
+      "parameters": { "type": "object", "properties": { "orderId": { "type": "string" } } },
+      "response_variables": { "result_code": "code", "order_id": "id" }
+    },
+    {
+      "tool_id": "tool_resolve_order",
+      "type": "custom",
+      "name": "resolve_order",
+      "description": "Resolve a spoken order number to one of the customer's orders.",
+      "url": "{{env:PUBLIC_APP_URL}}/retell/functions/resolve-order",
+      "method": "POST",
+      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
+      "parameters": { "type": "object", "properties": { "orderNumber": { "type": "string" } }, "required": ["orderNumber"] },
+      "response_variables": { "result_code": "code", "order_id": "id" }
+    },
+    {
+      "tool_id": "tool_get_tracking_status",
+      "type": "custom",
+      "name": "get_tracking_status",
+      "description": "Fetch live shipment tracking for the call's resolved order.",
+      "url": "{{env:PUBLIC_APP_URL}}/retell/functions/get-tracking-status",
+      "method": "POST",
+      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
+      "parameters": { "type": "object", "properties": { "orderId": { "type": "string" } } },
+      "response_variables": { "result_code": "code" }
+    },
+    {
+      "tool_id": "tool_list_orders_start",
+      "type": "custom",
+      "name": "list_recent_orders_start",
+      "description": "List the customer's most recent orders, fresh start.",
+      "url": "{{env:PUBLIC_APP_URL}}/retell/functions/list-recent-orders",
+      "method": "POST",
+      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
+      "parameters": { "type": "object", "properties": { "action": { "type": "string", "const": "START" } }, "required": ["action"] },
+      "response_variables": { "result_code": "code" }
+    },
+    {
+      "tool_id": "tool_list_orders_more",
+      "type": "custom",
+      "name": "list_recent_orders_more",
+      "description": "List the next page of the customer's orders.",
+      "url": "{{env:PUBLIC_APP_URL}}/retell/functions/list-recent-orders",
+      "method": "POST",
+      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
+      "parameters": { "type": "object", "properties": { "action": { "type": "string", "const": "MORE" } }, "required": ["action"] },
+      "response_variables": { "result_code": "code" }
+    },
+    {
+      "tool_id": "tool_list_orders_repeat",
+      "type": "custom",
+      "name": "list_recent_orders_repeat",
+      "description": "Repeat the current page of the customer's orders.",
+      "url": "{{env:PUBLIC_APP_URL}}/retell/functions/list-recent-orders",
+      "method": "POST",
+      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
+      "parameters": { "type": "object", "properties": { "action": { "type": "string", "const": "REPEAT" } }, "required": ["action"] },
+      "response_variables": { "result_code": "code" }
+    },
+    {
+      "tool_id": "tool_tracking_error_ticket",
+      "type": "custom",
+      "name": "create_tracking_error_ticket",
+      "description": "Open a support ticket because the tracking provider failed.",
+      "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
+      "method": "POST",
+      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
+      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Tracking provider unavailable" } }, "required": ["reason"] },
+      "response_variables": { "result_code": "code" }
+    },
+    {
+      "tool_id": "tool_escalate",
+      "type": "custom",
+      "name": "create_escalation_ticket",
+      "description": "Open a support ticket because the listing repeat/more budget was exhausted.",
+      "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
+      "method": "POST",
+      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
+      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Listing limit reached" } }, "required": ["reason"] },
+      "response_variables": { "result_code": "code" }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "known_order_check",
+      "type": "branch",
+      "name": "Known Order Check",
+      "display_position": { "x": 0, "y": 0 },
+      "edges": [
+        {
+          "id": "begin-known",
+          "destination_node_id": "load_known_order",
+          "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{has_known_order}}", "operator": "==", "right": "true" }] }
+        }
+      ],
+      "else_edge": { "id": "begin-else", "destination_node_id": "ask_order_number", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+    },
+    {
+      "id": "load_known_order",
+      "type": "function",
+      "name": "Load Known Order",
+      "display_position": { "x": 300, "y": -150 },
+      "tool_id": "tool_get_order_details",
+      "tool_type": "shared",
+      "wait_for_result": true,
+      "edges": [
+        {
+          "id": "loadknown-found",
+          "destination_node_id": "speak_order_details",
+          "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "ORDER_FOUND" }] }
+        }
+      ],
+      "else_edge": { "id": "loadknown-else", "destination_node_id": "ask_order_number", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+    },
+    {
+      "id": "ask_order_number",
+      "type": "conversation",
+      "name": "Ask Order Number",
+      "display_position": { "x": 300, "y": 150 },
+      "instruction": { "type": "prompt", "text": "Greet the customer, ask for their order number." },
+      "always_edge": { "id": "ask-always", "destination_node_id": "capture_order_number", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+    },
+    {
+      "id": "capture_order_number",
+      "type": "extract_dynamic_variables",
+      "name": "Capture Order Number",
+      "display_position": { "x": 600, "y": 150 },
+      "variables": [{ "type": "string", "name": "order_number", "description": "The order number the customer just said, normalized." }],
+      "always_edge": { "id": "capture-always", "destination_node_id": "resolve_order", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+    },
+    {
+      "id": "resolve_order",
+      "type": "function",
+      "name": "Resolve Order",
+      "display_position": { "x": 900, "y": 150 },
+      "tool_id": "tool_resolve_order",
+      "tool_type": "shared",
+      "wait_for_result": true,
+      "edges": [
+        {
+          "id": "resolve-found",
+          "destination_node_id": "speak_order_details",
+          "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "ORDER_FOUND" }] }
+        },
+        {
+          "id": "resolve-notfound",
+          "destination_node_id": "ask_order_number",
+          "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "ORDER_NOT_FOUND" }] }
+        }
+      ],
+      "else_edge": { "id": "resolve-else", "destination_node_id": "list_orders_start", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+    },
+    {
+      "id": "speak_order_details",
+      "type": "conversation",
+      "name": "Speak Order Details",
+      "display_position": { "x": 1200, "y": 0 },
+      "instruction": { "type": "prompt", "text": "Speak items, carrier, notes, estimated delivery from the last function result. Ask if they want live tracking." },
+      "edges": [
+        {
+          "id": "speakdetails-tracking",
+          "destination_node_id": "track_order",
+          "transition_condition": { "type": "prompt", "prompt": "Customer wants live tracking" }
+        }
+      ],
+      "else_edge": { "id": "speakdetails-else", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+    },
+    {
+      "id": "list_orders_start",
+      "type": "function",
+      "name": "List Orders",
+      "display_position": { "x": 1200, "y": 350 },
+      "tool_id": "tool_list_orders_start",
+      "tool_type": "shared",
+      "wait_for_result": true,
+      "always_edge": { "id": "liststart-always", "destination_node_id": "speak_listed_orders", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+    },
+    {
+      "id": "list_orders_more",
+      "type": "function",
+      "name": "List More",
+      "display_position": { "x": 1500, "y": 450 },
+      "tool_id": "tool_list_orders_more",
+      "tool_type": "shared",
+      "wait_for_result": true,
+      "edges": [
+        {
+          "id": "listmore-listed",
+          "destination_node_id": "speak_listed_orders",
+          "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "ORDERS_LISTED" }] }
+        }
+      ],
+      "else_edge": { "id": "listmore-else", "destination_node_id": "escalate", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+    },
+    {
+      "id": "list_orders_repeat",
+      "type": "function",
+      "name": "Repeat Orders",
+      "display_position": { "x": 1500, "y": 250 },
+      "tool_id": "tool_list_orders_repeat",
+      "tool_type": "shared",
+      "wait_for_result": true,
+      "edges": [
+        {
+          "id": "listrepeat-listed",
+          "destination_node_id": "speak_listed_orders",
+          "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "ORDERS_LISTED" }] }
+        }
+      ],
+      "else_edge": { "id": "listrepeat-else", "destination_node_id": "escalate", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+    },
+    {
+      "id": "speak_listed_orders",
+      "type": "conversation",
+      "name": "Speak Listed Orders",
+      "display_position": { "x": 1800, "y": 350 },
+      "instruction": { "type": "prompt", "text": "Speak each order number/date/amount/currency from the result. Ask: state an order number, more, or repeat." },
+      "edges": [
+        { "id": "listed-number", "destination_node_id": "capture_order_number", "transition_condition": { "type": "prompt", "prompt": "Customer states an order number" } },
+        { "id": "listed-more", "destination_node_id": "list_orders_more", "transition_condition": { "type": "prompt", "prompt": "Customer asks for more" } },
+        { "id": "listed-repeat", "destination_node_id": "list_orders_repeat", "transition_condition": { "type": "prompt", "prompt": "Customer asks to repeat" } }
+      ]
+    },
+    {
+      "id": "track_order",
+      "type": "function",
+      "name": "Track Order",
+      "display_position": { "x": 1500, "y": 0 },
+      "tool_id": "tool_get_tracking_status",
+      "tool_type": "shared",
+      "wait_for_result": true,
+      "edges": [
+        {
+          "id": "track-found",
+          "destination_node_id": "speak_tracking",
+          "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "TRACKING_FOUND" }] }
+        }
+      ],
+      "else_edge": { "id": "track-else", "destination_node_id": "tracking_error_ticket", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+    },
+    {
+      "id": "speak_tracking",
+      "type": "conversation",
+      "name": "Speak Tracking",
+      "display_position": { "x": 1800, "y": 0 },
+      "instruction": { "type": "prompt", "text": "Speak every shipment's status/event/date/location, then notes." },
+      "always_edge": { "id": "speaktracking-always", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+    },
+    {
+      "id": "tracking_error_ticket",
+      "type": "function",
+      "name": "Tracking Error Ticket",
+      "display_position": { "x": 1800, "y": -150 },
+      "tool_id": "tool_tracking_error_ticket",
+      "tool_type": "shared",
+      "wait_for_result": true,
+      "always_edge": { "id": "trackingticket-always", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+    },
+    {
+      "id": "escalate",
+      "type": "function",
+      "name": "Escalate",
+      "display_position": { "x": 2100, "y": 350 },
+      "tool_id": "tool_escalate",
+      "tool_type": "shared",
+      "wait_for_result": true,
+      "always_edge": { "id": "escalate-always", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+    },
+    {
+      "id": "end_call",
+      "type": "end",
+      "name": "End Call",
+      "display_position": { "x": 2400, "y": 0 }
+    }
+  ]
+}
