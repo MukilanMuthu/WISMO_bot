@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { TicketCategory } from "@prisma/client";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireUser, type AuthedRequest } from "@/middleware/auth";
@@ -89,7 +90,7 @@ router.post(
 const resolveSchema = z.object({ orderNumber: z.string().min(1).max(50) }).passthrough();
 const listSchema = z.object({ action: z.enum(["START", "MORE", "REPEAT"]) }).passthrough();
 const trackingSchema = z.object({ orderId: z.string().optional() }).passthrough();
-const ticketSchema = z.object({ reason: z.string().min(3).max(500) }).passthrough();
+const ticketSchema = z.object({ reason: z.string().min(3).max(500), type: z.nativeEnum(TicketCategory) }).passthrough();
 const verifySchema = z.object({ email: z.string().min(3).max(200) }).passthrough();
 
 // Resolve spoken order number while backend owns retry counting and customer scoping.
@@ -154,7 +155,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const body = req.body as Record<string, unknown>;
     const input = ticketSchema.parse(getRetellArgs(body));
-    res.json(await createEscalationTicket(getRetellCallId(body), input.reason));
+    res.json(await createEscalationTicket(getRetellCallId(body), input.reason, input.type));
   }),
 );
 

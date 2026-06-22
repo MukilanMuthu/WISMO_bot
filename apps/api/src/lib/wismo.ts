@@ -1,4 +1,4 @@
-import { CallStatus, Prisma } from "@prisma/client";
+import { CallStatus, Prisma, TicketCategory } from "@prisma/client";
 import { db } from "@/lib/db";
 import { getTrackingStatus } from "@/lib/trackingmore";
 import {
@@ -10,6 +10,7 @@ import {
   nextListingState,
   nextMoreOffenseState,
   orderStatusFlags,
+  ticketResultPayload,
   trackingTargetsForOrder,
 } from "./wismo-guardrails";
 
@@ -174,20 +175,24 @@ export async function trackingForCall(retellCallId: string, requestedOrderId?: s
   }
 }
 
-// Create one idempotent open ticket per call and mark the call escalated.
-export async function createEscalationTicket(retellCallId: string, reason: string) {
+// Create one open ticket per (customer, category, order) — order may be null (e.g. an
+// escalation raised before any order is loaded). Dedup is scoped to the order (or to "no
+// order" for that customer), not just the current call, so a callback about the same
+// unresolved issue hits the same ticket instead of spawning a duplicate.
+export async function createEscalationTicket(retellCallId: string, reason: string, category: TicketCategory, requestedOrderId?: string) {
   const call = await requireVoiceCall(retellCallId);
-  const existing = await db.supportTicket.findFirst({ where: { callId: call.id, status: "OPEN" } });
-  // apology=true on every ticket: reaching a ticket always means something went wrong, so the end node apologises.
-  if (existing) return { code: "TICKET_CREATED" as const, ticketId: existing.id, existing: true, apology: true };
+  const orderId = requestedOrderId ?? call.orderId ?? null;
+
+  const existing = await db.supportTicket.findFirst({ where: { category, customerId: call.customerId, orderId, status: "OPEN" } });
+  if (existing) return ticketResultPayload(existing);
 
   const ticket = await db.$transaction(async (tx: Prisma.TransactionClient) => {
-    const created = await tx.supportTicket.create({ data: { customerId: call.customerId, callId: call.id, reason } });
+    const created = await tx.supportTicket.create({ data: { customerId: call.customerId, callId: call.id, orderId, category, reason } });
     await tx.voiceCall.update({ where: { id: call.id }, data: { status: CallStatus.ESCALATED } });
     return created;
   });
 
-  return { code: "TICKET_CREATED" as const, ticketId: ticket.id, existing: false, apology: true };
+  return ticketResultPayload(null, ticket);
 }
 
 // Verify the caller against the loaded order by email only (no phone). Stateless: the Retell flow

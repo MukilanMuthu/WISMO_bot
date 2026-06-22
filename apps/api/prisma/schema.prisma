@@ -37,6 +37,19 @@ enum TicketStatus {
   RESOLVED
 }
 
+enum TicketCategory {
+  TRACKING_PROVIDER_UNAVAILABLE
+  LISTING_LIMIT_REACHED
+  ORDER_NOT_SHIPPED
+  DELIVERY_DELAYED
+  ADDRESS_CHANGE
+  ADDRESS_CHANGE_MIDSHIP
+  DELIVERED_NOT_RECEIVED
+  TRACKING_WRONG_DELIVERED
+  TRACKING_WRONG_TRANSIT
+  ESCALATION_REQUESTED
+}
+
 model User {
   id           String      @id @default(cuid())
   name         String
@@ -78,6 +91,7 @@ model Order {
   customer            User               @relation(fields: [customerId], references: [id], onDelete: Cascade)
   calls               VoiceCall[]
   trackingLookupLogs  TrackingLookupLog[]
+  tickets             SupportTicket[]
 
   @@index([customerId, createdAt(sort: Desc)])
 }
@@ -143,16 +157,23 @@ model VoiceCallEvent {
 }
 
 model SupportTicket {
-  id         String       @id @default(cuid())
-  customerId String
-  callId     String?
-  reason     String
-  status     TicketStatus @default(OPEN)
-  createdAt  DateTime     @default(now())
-  customer   User         @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  call       VoiceCall?   @relation(fields: [callId], references: [id], onDelete: SetNull)
+  id           String         @id @default(cuid())
+  // Sequential, human-speakable identifier — the only ticket id ever spoken to or shown to a caller.
+  ticketNumber Int            @default(autoincrement())
+  customerId   String
+  callId       String?
+  orderId      String?
+  category     TicketCategory
+  reason       String
+  status       TicketStatus   @default(OPEN)
+  createdAt    DateTime       @default(now())
+  customer     User           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  call         VoiceCall?     @relation(fields: [callId], references: [id], onDelete: SetNull)
+  order        Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@index([status, createdAt(sort: Desc)])
+  // Dedup lookup: is the same issue already open for this customer/order (orderId may be NULL)?
+  @@index([category, customerId, orderId, status])
 }
 
 model TrackingLookupLog {

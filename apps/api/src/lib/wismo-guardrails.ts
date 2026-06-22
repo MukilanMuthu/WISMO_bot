@@ -112,3 +112,10 @@ export function nextMoreOffenseState(moreOffenseCount: number, hitEndOfList: boo
   if (moreOffenseCount <= 0) return { moreOffenseCount, exhausted: true };
   return { moreOffenseCount: moreOffenseCount - 1, exhausted: false };
 }
+
+// Shape the Retell-facing result of a ticket-create attempt: only the human-readable
+// ticketNumber ever crosses this boundary, never the internal cuid id.
+export function ticketResultPayload(existing: { ticketNumber: number } | null, created?: { ticketNumber: number }) {
+  if (existing) return { code: "DUPLICATE_OPEN" as const, ticketNumber: existing.ticketNumber, apology: true };
+  return { code: "TICKET_CREATED" as const, ticketNumber: created!.ticketNumber, apology: true };
+}

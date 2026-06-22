@@ -7,6 +7,17 @@ export type FinancialStatus = "PAID" | "REFUNDED" | "PARTIALLY_REFUNDED";
 export type FulfillmentStatus = "UNFULFILLED" | "PARTIALLY_FULFILLED" | "FULFILLED";
 export type CallStatus = "CREATED" | "ACTIVE" | "COMPLETED" | "FAILED" | "ESCALATED";
 export type TicketStatus = "OPEN" | "RESOLVED";
+export type TicketCategory =
+  | "TRACKING_PROVIDER_UNAVAILABLE"
+  | "LISTING_LIMIT_REACHED"
+  | "ORDER_NOT_SHIPPED"
+  | "DELIVERY_DELAYED"
+  | "ADDRESS_CHANGE"
+  | "ADDRESS_CHANGE_MIDSHIP"
+  | "DELIVERED_NOT_RECEIVED"
+  | "TRACKING_WRONG_DELIVERED"
+  | "TRACKING_WRONG_TRANSIT"
+  | "ESCALATION_REQUESTED";
 
 // Generic success/error envelopes the API always returns.
 export interface ApiSuccess<T> {
@@ -78,6 +89,8 @@ export interface DashboardDTO {
   }>;
   tickets: Array<{
     id: string;
+    ticketNumber: number;
+    category: TicketCategory;
     reason: string;
     status: TicketStatus;
     customer: { name: string };
@@ -88,6 +101,33 @@ export interface DashboardDTO {
     createdAt: string;
     order: { orderNumber: string };
   }>;
+  // Agent-performance story: how often the agent resolves a call on its own, how often it
+  // escalates and why, how often the same order comes back, and how long calls run.
+  containmentRate: number;
+  escalationRate: number;
+  ticketsByCategory: Record<string, number>;
+  repeatContactRate: number;
+  avgCallDurationSeconds: number;
+}
+
+// GET /admin/calls/:callId
+export interface CallDetailDTO {
+  id: string;
+  status: CallStatus;
+  startedAt: string;
+  endedAt: string | null;
+  customer: { name: string; email: string };
+  order: { orderNumber: string } | null;
+  tickets: Array<{
+    id: string;
+    ticketNumber: number;
+    category: TicketCategory;
+    reason: string;
+    status: TicketStatus;
+    createdAt: string;
+  }>;
+  events: Array<{ id: string; type: string; createdAt: string }>;
+  transcript: Array<{ role: "agent" | "user"; content: string }>;
 }
 
 // POST /retell/web-call

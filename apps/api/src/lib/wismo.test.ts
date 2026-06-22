@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LISTING_REPEAT_LIMIT, normalizeOrderNumber, nextListingState, nextMoreOffenseState, ORDERS_PER_PAGE, orderStatusFlags, trackingTargetsForOrder } from "./wismo-guardrails";
+import { LISTING_REPEAT_LIMIT, normalizeOrderNumber, nextListingState, nextMoreOffenseState, ORDERS_PER_PAGE, orderStatusFlags, ticketResultPayload, trackingTargetsForOrder } from "./wismo-guardrails";
 
 const NOW = new Date("2026-06-22T00:00:00Z");
 const PAST = new Date("2026-06-10T00:00:00Z");
@@ -98,5 +98,13 @@ describe("WISMO guardrails", () => {
       { carrierName: "Carrier A", trackingId: "PARCEL-A", trackingUrl: "https://example.com/a", itemNames: ["Bag", "Cable"], trackingMoreCreated: true },
       { carrierName: "Carrier B", trackingId: "PARCEL-B", trackingUrl: "https://example.com/b", itemNames: ["Bottle"], trackingMoreCreated: false },
     ]);
+  });
+
+  it("reports DUPLICATE_OPEN with the existing ticket number when one is already open", () => {
+    expect(ticketResultPayload({ ticketNumber: 1042 })).toEqual({ code: "DUPLICATE_OPEN", ticketNumber: 1042, apology: true });
+  });
+
+  it("reports TICKET_CREATED with the new ticket number when none was open", () => {
+    expect(ticketResultPayload(null, { ticketNumber: 1043 })).toEqual({ code: "TICKET_CREATED", ticketNumber: 1043, apology: true });
   });
 });

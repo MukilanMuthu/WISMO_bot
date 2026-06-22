@@ -1,5 +1,5 @@
 {
-  "global_prompt": "You are an ecommerce order-status assistant. Help only with orders owned by the authenticated customer context supplied by the backend. Never invent order or tracking data. Keep responses brief and suitable for speech. Follow node transitions and backend result codes exactly. When the backend returns an error or escalation result, do not work around it. Handle at most two separate requests per call; after you have helped with two requests, do not offer further help — end the call politely. When ending, if {{apology}} is true, apologise for the inconvenience.",
+  "global_prompt": "You are an ecommerce order-status assistant. Help only with orders owned by the authenticated customer context supplied by the backend. Never invent order or tracking data. Keep responses brief and suitable for speech. Follow node transitions and backend result codes exactly. When the backend returns an error or escalation result, do not work around it. Handle at most two separate requests per call; after you have helped with two requests, do not offer further help — end the call politely. When ending, if {{apology}} is true, apologise for the inconvenience. If the customer asks about something this agent does not handle — anything not related to their order status, tracking, delivery, address changes, or escalation to a human — tell them this agent can only help with order-related queries. If they do this again after being told once, end the call politely.",
   "start_speaker": "agent",
   "start_node_id": "greeting",
   "model_choice": {
@@ -224,15 +224,20 @@
           "reason": {
             "type": "string",
             "const": "Tracking provider unavailable (high priority)"
+          },
+          "type": {
+            "type": "string",
+            "const": "TRACKING_PROVIDER_UNAVAILABLE"
           }
         },
         "required": [
-          "reason"
+          "reason",
+          "type"
         ]
       },
       "response_variables": {
         "result_code": "code",
-        "ticket_id": "ticketId",
+        "ticket_number": "ticketNumber",
         "apology": "apology"
       }
     },
@@ -252,15 +257,20 @@
           "reason": {
             "type": "string",
             "const": "Listing limit reached"
+          },
+          "type": {
+            "type": "string",
+            "const": "LISTING_LIMIT_REACHED"
           }
         },
         "required": [
-          "reason"
+          "reason",
+          "type"
         ]
       },
       "response_variables": {
         "result_code": "code",
-        "ticket_id": "ticketId",
+        "ticket_number": "ticketNumber",
         "apology": "apology"
       }
     },
@@ -280,15 +290,20 @@
           "reason": {
             "type": "string",
             "const": "Order not shipped (high priority)"
+          },
+          "type": {
+            "type": "string",
+            "const": "ORDER_NOT_SHIPPED"
           }
         },
         "required": [
-          "reason"
+          "reason",
+          "type"
         ]
       },
       "response_variables": {
         "result_code": "code",
-        "ticket_id": "ticketId",
+        "ticket_number": "ticketNumber",
         "apology": "apology"
       }
     },
@@ -308,15 +323,20 @@
           "reason": {
             "type": "string",
             "const": "Delivery delayed (high priority)"
+          },
+          "type": {
+            "type": "string",
+            "const": "DELIVERY_DELAYED"
           }
         },
         "required": [
-          "reason"
+          "reason",
+          "type"
         ]
       },
       "response_variables": {
         "result_code": "code",
-        "ticket_id": "ticketId",
+        "ticket_number": "ticketNumber",
         "apology": "apology"
       }
     },
@@ -336,15 +356,20 @@
           "reason": {
             "type": "string",
             "const": "Address change request (low priority)"
+          },
+          "type": {
+            "type": "string",
+            "const": "ADDRESS_CHANGE"
           }
         },
         "required": [
-          "reason"
+          "reason",
+          "type"
         ]
       },
       "response_variables": {
         "result_code": "code",
-        "ticket_id": "ticketId"
+        "ticket_number": "ticketNumber"
       }
     },
     {
@@ -363,15 +388,20 @@
           "reason": {
             "type": "string",
             "const": "Address change mid-shipment (medium priority)"
+          },
+          "type": {
+            "type": "string",
+            "const": "ADDRESS_CHANGE_MIDSHIP"
           }
         },
         "required": [
-          "reason"
+          "reason",
+          "type"
         ]
       },
       "response_variables": {
         "result_code": "code",
-        "ticket_id": "ticketId"
+        "ticket_number": "ticketNumber"
       }
     },
     {
@@ -390,15 +420,20 @@
           "reason": {
             "type": "string",
             "const": "Delivered not received (high priority)"
+          },
+          "type": {
+            "type": "string",
+            "const": "DELIVERED_NOT_RECEIVED"
           }
         },
         "required": [
-          "reason"
+          "reason",
+          "type"
         ]
       },
       "response_variables": {
         "result_code": "code",
-        "ticket_id": "ticketId",
+        "ticket_number": "ticketNumber",
         "apology": "apology"
       }
     },
@@ -418,15 +453,20 @@
           "reason": {
             "type": "string",
             "const": "Tracking info incorrect, delivered (high priority)"
+          },
+          "type": {
+            "type": "string",
+            "const": "TRACKING_WRONG_DELIVERED"
           }
         },
         "required": [
-          "reason"
+          "reason",
+          "type"
         ]
       },
       "response_variables": {
         "result_code": "code",
-        "ticket_id": "ticketId",
+        "ticket_number": "ticketNumber",
         "apology": "apology"
       }
     },
@@ -446,15 +486,86 @@
           "reason": {
             "type": "string",
             "const": "Tracking info incorrect, in transit (medium priority)"
+          },
+          "type": {
+            "type": "string",
+            "const": "TRACKING_WRONG_TRANSIT"
           }
         },
         "required": [
-          "reason"
+          "reason",
+          "type"
         ]
       },
       "response_variables": {
         "result_code": "code",
-        "ticket_id": "ticketId",
+        "ticket_number": "ticketNumber",
+        "apology": "apology"
+      }
+    },
+    {
+      "tool_id": "tool_ticket_escalation",
+      "type": "custom",
+      "name": "create_ticket_escalation",
+      "description": "Open a ticket because the customer asked to speak with a human agent, supervisor, or escalation, and an order is already loaded.",
+      "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
+      "method": "POST",
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Escalation requested by customer"
+          },
+          "type": {
+            "type": "string",
+            "const": "ESCALATION_REQUESTED"
+          }
+        },
+        "required": [
+          "reason",
+          "type"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_number": "ticketNumber",
+        "apology": "apology"
+      }
+    },
+    {
+      "tool_id": "tool_ticket_escalation_no_order",
+      "type": "custom",
+      "name": "create_ticket_escalation_no_order",
+      "description": "Open a ticket for an escalation request when the customer declined to provide an order number after being asked twice.",
+      "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
+      "method": "POST",
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Escalation requested - customer declined to provide an order number after being asked twice"
+          },
+          "type": {
+            "type": "string",
+            "const": "ESCALATION_REQUESTED"
+          }
+        },
+        "required": [
+          "reason",
+          "type"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_number": "ticketNumber",
         "apology": "apology"
       }
     }
@@ -564,12 +675,22 @@
         "type": "prompt",
         "text": "Ask the customer for their order number."
       },
-      "always_edge": {
-        "id": "ask-always",
+      "edges": [
+        {
+          "id": "ask-escalation",
+          "destination_node_id": "ask_escalation_order",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer explicitly asks to speak with a human agent, a supervisor, or escalation, instead of giving an order number"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "ask-else",
         "destination_node_id": "capture_order_number",
         "transition_condition": {
           "type": "prompt",
-          "prompt": "Always"
+          "prompt": "Else"
         }
       }
     },
@@ -665,7 +786,7 @@
       },
       "instruction": {
         "type": "prompt",
-        "text": "The customer's order is now loaded. Briefly confirm the order number, then ask what they'd like help with — do not recite the full order unprompted. Answer simple questions (items, totals, dates) from the data already available. Route to a branch only when the customer clearly asks for one of: live tracking / where the parcel is; changing the delivery address; reporting that the order has not arrived; or reporting that the tracking address or tracking info is wrong. If you have already helped with two separate requests on this call, do not start a third — wrap up and end the call. If they're done or say goodbye, end the call."
+        "text": "The customer's order is now loaded. Briefly confirm the order number, then ask what they'd like help with — do not recite the full order unprompted. Answer simple questions (items, totals, dates) from the data already available. Route to a branch only when the customer clearly asks for one of: live tracking / where the parcel is; changing the delivery address; reporting that the order has not arrived; reporting that the tracking address or tracking info is wrong; or asking for a human agent, supervisor, or escalation. If you have already helped with two separate requests on this call, do not start a third — wrap up and end the call. If they're done or say goodbye, end the call."
       },
       "edges": [
         {
@@ -698,6 +819,14 @@
           "transition_condition": {
             "type": "prompt",
             "prompt": "Customer says the tracking address is wrong or the tracking information looks wrong"
+          }
+        },
+        {
+          "id": "router-escalation",
+          "destination_node_id": "escalation_ticket",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer explicitly asks to speak with a human agent, a supervisor, or escalation, or says the bot/AI can't help them"
           }
         }
       ],
@@ -1099,7 +1228,7 @@
       },
       "instruction": {
         "type": "prompt",
-        "text": "Apologise for the delay. Explain there has been an issue with shipping, that a support ticket has been created and an agent will reach out shortly. Tell them the ticket id {{ticket_id}}. Then ask if there is anything else you can help with."
+        "text": "If {{result_code}} is TICKET_CREATED: apologise for the delay, explain there has been an issue with shipping, that a support ticket has been created and an agent will reach out shortly, and give the ticket number {{ticket_number}}. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
       },
       "edges": [
         {
@@ -1187,7 +1316,7 @@
       },
       "instruction": {
         "type": "prompt",
-        "text": "Apologise — the tracking provider is unavailable right now. Tell the customer a support ticket has been created and an agent will follow up. Give the ticket id {{ticket_id}}. Then ask if there is anything else you can help with."
+        "text": "If {{result_code}} is TICKET_CREATED: apologise that the tracking provider is unavailable right now, tell the customer a support ticket has been created and an agent will follow up, and give the ticket number {{ticket_number}}. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
       },
       "edges": [
         {
@@ -1418,7 +1547,7 @@
       },
       "instruction": {
         "type": "prompt",
-        "text": "Apologise for the delay. Explain the delivery is overdue and the courier has not posted online updates, so a support ticket has been created. Give the ticket id {{ticket_id}} and say an agent will follow up. Then ask if there is anything else you can help with."
+        "text": "If {{result_code}} is TICKET_CREATED: apologise for the delay, explain the delivery is overdue and the courier has not posted online updates, give the ticket number {{ticket_number}}, and say an agent will follow up. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
       },
       "edges": [
         {
@@ -1838,7 +1967,7 @@
       },
       "instruction": {
         "type": "prompt",
-        "text": "Tell the customer a support ticket has been created to update their address, give the ticket id {{ticket_id}}, and say the address will be updated shortly. Then ask if there is anything else you can help with."
+        "text": "If {{result_code}} is TICKET_CREATED: tell the customer a support ticket has been created to update their address, give the ticket number {{ticket_number}}, and say the address will be updated shortly. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
       },
       "edges": [
         {
@@ -1910,7 +2039,7 @@
       },
       "instruction": {
         "type": "prompt",
-        "text": "Tell the customer a support ticket has been created to change the address mid-shipment, give the ticket id {{ticket_id}}, and warn that changing the address after dispatch may incur higher costs. Then ask if there is anything else you can help with."
+        "text": "If {{result_code}} is TICKET_CREATED: tell the customer a support ticket has been created to change the address mid-shipment, give the ticket number {{ticket_number}}, and warn that changing the address after dispatch may incur higher costs. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
       },
       "edges": [
         {
@@ -2060,7 +2189,7 @@
       },
       "instruction": {
         "type": "prompt",
-        "text": "Apologise. Explain that because tracking shows delivered but they haven't received it, you've opened a high-priority support ticket and an agent will call them back. Give the ticket id {{ticket_id}}. Then ask if there is anything else you can help with."
+        "text": "If {{result_code}} is TICKET_CREATED: apologise, explain that because tracking shows delivered but they haven't received it, you've opened a high-priority support ticket and an agent will call them back, and give the ticket number {{ticket_number}}. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
       },
       "edges": [
         {
@@ -2142,7 +2271,7 @@
       },
       "instruction": {
         "type": "prompt",
-        "text": "Apologise for the delay. Tell the customer a support ticket has been opened (or is already open) for the delayed delivery and an agent will follow up. Give the ticket id {{ticket_id}}. Then ask if there is anything else you can help with."
+        "text": "If {{result_code}} is TICKET_CREATED: apologise for the delay, tell the customer a support ticket has been opened for the delayed delivery and an agent will follow up, and give the ticket number {{ticket_number}}. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
       },
       "edges": [
         {
@@ -2258,7 +2387,7 @@
       },
       "instruction": {
         "type": "prompt",
-        "text": "Apologise. Tell the customer a high-priority support ticket has been created, give the ticket id {{ticket_id}}, and say an agent will contact them shortly and handle this urgently. Then ask if there is anything else you can help with."
+        "text": "If {{result_code}} is TICKET_CREATED: apologise, tell the customer a high-priority support ticket has been created, give the ticket number {{ticket_number}}, and say an agent will contact them shortly and handle this urgently. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
       },
       "edges": [
         {
@@ -2309,7 +2438,7 @@
       },
       "instruction": {
         "type": "prompt",
-        "text": "Apologise. Tell the customer a support ticket has been created, give the ticket id {{ticket_id}}, and say an agent will contact them shortly. Then ask if there is anything else you can help with."
+        "text": "If {{result_code}} is TICKET_CREATED: apologise, tell the customer a support ticket has been created, give the ticket number {{ticket_number}}, and say an agent will contact them shortly. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
       },
       "edges": [
         {
@@ -2381,6 +2510,206 @@
       "instruction": {
         "type": "prompt",
         "text": "Thank the customer for calling and say a brief, friendly goodbye. If {{apology}} is true, also apologise once more for the inconvenience caused."
+      }
+    },
+    {
+      "id": "escalation_ticket",
+      "type": "function",
+      "name": "Ticket: escalation requested",
+      "display_position": {
+        "x": 1500,
+        "y": -300
+      },
+      "tool_id": "tool_ticket_escalation",
+      "tool_type": "local",
+      "wait_for_result": true,
+      "always_edge": {
+        "id": "escalationticket-always",
+        "destination_node_id": "speak_escalation_ticket",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
+    },
+    {
+      "id": "escalation_ticket_no_order",
+      "type": "function",
+      "name": "Ticket: escalation, no order provided",
+      "display_position": {
+        "x": 600,
+        "y": -450
+      },
+      "tool_id": "tool_ticket_escalation_no_order",
+      "tool_type": "local",
+      "wait_for_result": true,
+      "always_edge": {
+        "id": "escalationticketnoorder-always",
+        "destination_node_id": "speak_escalation_ticket",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
+    },
+    {
+      "id": "speak_escalation_ticket",
+      "type": "conversation",
+      "name": "Speak escalation ticket",
+      "display_position": {
+        "x": 1800,
+        "y": -300
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "If {{result_code}} is TICKET_CREATED: tell the customer you've opened a support ticket so a human executive can call them back, and give the ticket number {{ticket_number}}. If {{result_code}} is DUPLICATE_OPEN: tell them there's already an open ticket (number {{ticket_number}}) for this and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak-escalation-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.) and an order is loaded"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak-escalation-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "ask_escalation_order",
+      "type": "conversation",
+      "name": "Ask escalation order number",
+      "display_position": {
+        "x": 300,
+        "y": -300
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Ask which order number this escalation is about, so a human executive can be connected to the right order."
+      },
+      "edges": [
+        {
+          "id": "askescalationorder-given",
+          "destination_node_id": "escalation_capture_order",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer gives an order number"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "askescalationorder-refused",
+        "destination_node_id": "ask_escalation_order_retry",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "escalation_capture_order",
+      "type": "extract_dynamic_variables",
+      "name": "Capture escalation order number",
+      "display_position": {
+        "x": 600,
+        "y": -300
+      },
+      "variables": [
+        {
+          "type": "string",
+          "name": "order_number",
+          "description": "The order number digits the customer just said in this turn, and nothing else. Extract exactly the digits spoken, in the exact order spoken, with no digits inserted, removed, or padded. Output digits only, no spaces, no '#'. Always re-extract fresh from the customer's most recent utterance.",
+          "examples": [
+            "21505",
+            "30876",
+            "10042"
+          ],
+          "required": true
+        }
+      ],
+      "always_edge": {
+        "id": "escalationcapture-always",
+        "destination_node_id": "escalation_resolve_order",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
+    },
+    {
+      "id": "escalation_resolve_order",
+      "type": "function",
+      "name": "Resolve escalation order",
+      "display_position": {
+        "x": 900,
+        "y": -300
+      },
+      "tool_id": "tool_resolve_order",
+      "tool_type": "local",
+      "wait_for_result": true,
+      "edges": [
+        {
+          "id": "escalationresolve-found",
+          "destination_node_id": "escalation_ticket",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "ORDER_FOUND"
+              }
+            ]
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "escalationresolve-else",
+        "destination_node_id": "ask_escalation_order_retry",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "ask_escalation_order_retry",
+      "type": "conversation",
+      "name": "Ask escalation order number (retry)",
+      "display_position": {
+        "x": 300,
+        "y": -450
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Insist once more: explain you need the order number to connect them to the right team, and ask for it again."
+      },
+      "edges": [
+        {
+          "id": "askescalationretry-given",
+          "destination_node_id": "escalation_capture_order",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer gives an order number this time"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "askescalationretry-refused",
+        "destination_node_id": "escalation_ticket_no_order",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
       }
     }
   ]
