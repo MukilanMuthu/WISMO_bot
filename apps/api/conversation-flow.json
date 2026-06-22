@@ -2,7 +2,10 @@
   "global_prompt": "You are an ecommerce order-status assistant. Help only with orders owned by the authenticated customer context supplied by the backend. Never invent order or tracking data. Keep responses brief and suitable for speech. Follow node transitions and backend result codes exactly. When the backend returns an error or escalation result, do not work around it. Handle at most two separate requests per call; after you have helped with two requests, do not offer further help — end the call politely. When ending, if {{apology}} is true, apologise for the inconvenience.",
   "start_speaker": "agent",
   "start_node_id": "greeting",
-  "model_choice": { "type": "cascading", "model": "gpt-5.4-nano" },
+  "model_choice": {
+    "type": "cascading",
+    "model": "gpt-5.4-nano"
+  },
   "tools": [
     {
       "tool_id": "tool_get_order_details",
@@ -11,9 +14,27 @@
       "description": "Load the customer's currently-known order by id, no TrackingMore cost.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/get-order-details",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "orderId": { "type": "string" } } },
-      "response_variables": { "result_code": "code", "order_id": "id", "paid": "paid", "fulfilled": "fulfilled", "shipped": "shipped", "overdue": "overdue", "shipped_late": "shipped_late", "has_notes": "has_notes" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          }
+        }
+      },
+      "response_variables": {
+        "result_code": "code",
+        "order_id": "id",
+        "paid": "paid",
+        "fulfilled": "fulfilled",
+        "shipped": "shipped",
+        "overdue": "overdue",
+        "shipped_late": "shipped_late",
+        "has_notes": "has_notes"
+      }
     },
     {
       "tool_id": "tool_resolve_order",
@@ -22,9 +43,30 @@
       "description": "Resolve a spoken order number to one of the customer's orders. Always call with the order number most recently captured in {{order_number}} for this turn; never resend a previous incorrect value.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/resolve-order",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "orderNumber": { "type": "string" } }, "required": ["orderNumber"] },
-      "response_variables": { "result_code": "code", "order_id": "id", "paid": "paid", "fulfilled": "fulfilled", "shipped": "shipped", "overdue": "overdue", "shipped_late": "shipped_late", "has_notes": "has_notes" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "orderNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "orderNumber"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "order_id": "id",
+        "paid": "paid",
+        "fulfilled": "fulfilled",
+        "shipped": "shipped",
+        "overdue": "overdue",
+        "shipped_late": "shipped_late",
+        "has_notes": "has_notes"
+      }
     },
     {
       "tool_id": "tool_get_tracking_status",
@@ -33,9 +75,35 @@
       "description": "Fetch live shipment tracking for the call's resolved order. Sets every tracking branch flag and the speakable last_event / last_checkpoint / eta fields.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/get-tracking-status",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "orderId": { "type": "string" } } },
-      "response_variables": { "result_code": "code", "delivered": "delivered", "delivered_late": "delivered_late", "has_tracking": "has_tracking", "overdue": "overdue", "shipped_late": "shipped_late", "has_notes": "has_notes", "paid": "paid", "shipped": "shipped", "tracking_requested": "tracking_requested", "apology": "apology", "last_event": "last_event", "last_checkpoint": "last_checkpoint", "delivery_date": "delivery_date", "eta": "eta", "notes": "notes" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          }
+        }
+      },
+      "response_variables": {
+        "result_code": "code",
+        "delivered": "delivered",
+        "delivered_late": "delivered_late",
+        "has_tracking": "has_tracking",
+        "overdue": "overdue",
+        "shipped_late": "shipped_late",
+        "has_notes": "has_notes",
+        "paid": "paid",
+        "shipped": "shipped",
+        "tracking_requested": "tracking_requested",
+        "apology": "apology",
+        "last_event": "last_event",
+        "last_checkpoint": "last_checkpoint",
+        "delivery_date": "delivery_date",
+        "eta": "eta",
+        "notes": "notes"
+      }
     },
     {
       "tool_id": "tool_verify_identity",
@@ -44,9 +112,23 @@
       "description": "Verify the caller against the loaded order by email only. Returns VERIFIED or NOT_VERIFIED.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/verify-identity",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "email": { "type": "string" } }, "required": ["email"] },
-      "response_variables": { "result_code": "code" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code"
+      }
     },
     {
       "tool_id": "tool_list_orders_start",
@@ -55,9 +137,24 @@
       "description": "List the customer's most recent orders, fresh start.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/list-recent-orders",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "action": { "type": "string", "const": "START" } }, "required": ["action"] },
-      "response_variables": { "result_code": "code" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "const": "START"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code"
+      }
     },
     {
       "tool_id": "tool_list_orders_more",
@@ -66,9 +163,24 @@
       "description": "List the next page of the customer's orders.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/list-recent-orders",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "action": { "type": "string", "const": "MORE" } }, "required": ["action"] },
-      "response_variables": { "result_code": "code" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "const": "MORE"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code"
+      }
     },
     {
       "tool_id": "tool_list_orders_repeat",
@@ -77,9 +189,24 @@
       "description": "Repeat the current page of the customer's orders.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/list-recent-orders",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "action": { "type": "string", "const": "REPEAT" } }, "required": ["action"] },
-      "response_variables": { "result_code": "code" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "const": "REPEAT"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code"
+      }
     },
     {
       "tool_id": "tool_ticket_tracking_provider",
@@ -88,9 +215,26 @@
       "description": "Open a support ticket because the tracking provider failed.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Tracking provider unavailable (high priority)" } }, "required": ["reason"] },
-      "response_variables": { "result_code": "code", "ticket_id": "ticketId", "apology": "apology" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Tracking provider unavailable (high priority)"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_id": "ticketId",
+        "apology": "apology"
+      }
     },
     {
       "tool_id": "tool_ticket_listing_limit",
@@ -99,9 +243,26 @@
       "description": "Open a support ticket because the listing repeat/more budget was exhausted.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Listing limit reached" } }, "required": ["reason"] },
-      "response_variables": { "result_code": "code", "ticket_id": "ticketId", "apology": "apology" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Listing limit reached"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_id": "ticketId",
+        "apology": "apology"
+      }
     },
     {
       "tool_id": "tool_ticket_order_not_shipped",
@@ -110,9 +271,26 @@
       "description": "Open a high-priority ticket because a paid order is overdue and has not shipped.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Order not shipped (high priority)" } }, "required": ["reason"] },
-      "response_variables": { "result_code": "code", "ticket_id": "ticketId", "apology": "apology" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Order not shipped (high priority)"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_id": "ticketId",
+        "apology": "apology"
+      }
     },
     {
       "tool_id": "tool_ticket_delivery_delayed",
@@ -121,9 +299,26 @@
       "description": "Open a high-priority ticket because delivery is overdue (with or without carrier scans).",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Delivery delayed (high priority)" } }, "required": ["reason"] },
-      "response_variables": { "result_code": "code", "ticket_id": "ticketId", "apology": "apology" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Delivery delayed (high priority)"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_id": "ticketId",
+        "apology": "apology"
+      }
     },
     {
       "tool_id": "tool_ticket_address_change",
@@ -132,9 +327,25 @@
       "description": "Open a low-priority ticket to change the delivery address before the order has shipped.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Address change request (low priority)" } }, "required": ["reason"] },
-      "response_variables": { "result_code": "code", "ticket_id": "ticketId" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Address change request (low priority)"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_id": "ticketId"
+      }
     },
     {
       "tool_id": "tool_ticket_address_change_midship",
@@ -143,9 +354,25 @@
       "description": "Open a medium-priority ticket to change the delivery address after the order has shipped.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Address change mid-shipment (medium priority)" } }, "required": ["reason"] },
-      "response_variables": { "result_code": "code", "ticket_id": "ticketId" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Address change mid-shipment (medium priority)"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_id": "ticketId"
+      }
     },
     {
       "tool_id": "tool_ticket_delivered_not_received",
@@ -154,9 +381,26 @@
       "description": "Open a high-priority ticket because tracking says delivered but the customer never received it.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Delivered not received (high priority)" } }, "required": ["reason"] },
-      "response_variables": { "result_code": "code", "ticket_id": "ticketId", "apology": "apology" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Delivered not received (high priority)"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_id": "ticketId",
+        "apology": "apology"
+      }
     },
     {
       "tool_id": "tool_ticket_tracking_wrong_delivered",
@@ -165,9 +409,26 @@
       "description": "Open a high-priority ticket because tracking info is wrong on an order marked delivered.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Tracking info incorrect, delivered (high priority)" } }, "required": ["reason"] },
-      "response_variables": { "result_code": "code", "ticket_id": "ticketId", "apology": "apology" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Tracking info incorrect, delivered (high priority)"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_id": "ticketId",
+        "apology": "apology"
+      }
     },
     {
       "tool_id": "tool_ticket_tracking_wrong_transit",
@@ -176,9 +437,26 @@
       "description": "Open a medium-priority ticket because tracking info is wrong on an in-transit order.",
       "url": "{{env:PUBLIC_APP_URL}}/retell/functions/create-support-ticket",
       "method": "POST",
-      "headers": { "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}" },
-      "parameters": { "type": "object", "properties": { "reason": { "type": "string", "const": "Tracking info incorrect, in transit (medium priority)" } }, "required": ["reason"] },
-      "response_variables": { "result_code": "code", "ticket_id": "ticketId", "apology": "apology" }
+      "headers": {
+        "x-retell-function-secret": "{{env:RETELL_FUNCTION_SECRET}}"
+      },
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "const": "Tracking info incorrect, in transit (medium priority)"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "response_variables": {
+        "result_code": "code",
+        "ticket_id": "ticketId",
+        "apology": "apology"
+      }
     }
   ],
   "nodes": [
@@ -186,635 +464,1924 @@
       "id": "greeting",
       "type": "conversation",
       "name": "Greeting",
-      "display_position": { "x": -300, "y": 0 },
-      "instruction": { "type": "prompt", "text": "Greet the customer warmly and briefly, e.g. 'Hi, thanks for calling, I can help with your order today.'" },
-      "always_edge": { "id": "greeting-always", "destination_node_id": "known_order_check", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": -300,
+        "y": 0
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Greet the customer warmly and briefly, e.g. 'Hi, thanks for calling, I can help with your order today.'"
+      },
+      "always_edge": {
+        "id": "greeting-always",
+        "destination_node_id": "known_order_check",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "known_order_check",
       "type": "branch",
       "name": "Known Order Check",
-      "display_position": { "x": 0, "y": 0 },
+      "display_position": {
+        "x": 0,
+        "y": 0
+      },
       "edges": [
-        { "id": "begin-known", "destination_node_id": "load_known_order", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{has_known_order}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "begin-known",
+          "destination_node_id": "load_known_order",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{has_known_order}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "begin-else", "destination_node_id": "ask_order_number", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "begin-else",
+        "destination_node_id": "ask_order_number",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "load_known_order",
       "type": "function",
       "name": "Load Known Order",
-      "display_position": { "x": 300, "y": -150 },
+      "display_position": {
+        "x": 300,
+        "y": -150
+      },
       "tool_id": "tool_get_order_details",
       "tool_type": "local",
       "wait_for_result": true,
       "edges": [
-        { "id": "loadknown-found", "destination_node_id": "order_loaded", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "ORDER_FOUND" }] } }
+        {
+          "id": "loadknown-found",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "ORDER_FOUND"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "loadknown-else", "destination_node_id": "ask_order_number", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "loadknown-else",
+        "destination_node_id": "ask_order_number",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "ask_order_number",
       "type": "conversation",
       "name": "Ask Order Number",
-      "display_position": { "x": 300, "y": 150 },
-      "instruction": { "type": "prompt", "text": "Ask the customer for their order number." },
-      "always_edge": { "id": "ask-always", "destination_node_id": "capture_order_number", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 300,
+        "y": 150
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Ask the customer for their order number."
+      },
+      "always_edge": {
+        "id": "ask-always",
+        "destination_node_id": "capture_order_number",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "capture_order_number",
       "type": "extract_dynamic_variables",
       "name": "Capture Order Number",
-      "display_position": { "x": 600, "y": 150 },
-      "variables": [{ "type": "string", "name": "order_number", "description": "The order number digits the customer just said in this turn, and nothing else. Extract exactly the digits spoken, in the exact order spoken, with no digits inserted, removed, or padded. Do not add a leading or extra zero. Output digits only, no spaces, no '#'. Always re-extract fresh from the customer's most recent utterance; never reuse a value from an earlier turn.", "examples": ["21505", "30876", "10042"], "required": true }],
-      "always_edge": { "id": "capture-always", "destination_node_id": "resolve_order", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 600,
+        "y": 150
+      },
+      "variables": [
+        {
+          "type": "string",
+          "name": "order_number",
+          "description": "The order number digits the customer just said in this turn, and nothing else. Extract exactly the digits spoken, in the exact order spoken, with no digits inserted, removed, or padded. Do not add a leading or extra zero. Output digits only, no spaces, no '#'. Always re-extract fresh from the customer's most recent utterance; never reuse a value from an earlier turn.",
+          "examples": [
+            "21505",
+            "30876",
+            "10042"
+          ],
+          "required": true
+        }
+      ],
+      "always_edge": {
+        "id": "capture-always",
+        "destination_node_id": "resolve_order",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "resolve_order",
       "type": "function",
       "name": "Resolve Order",
-      "display_position": { "x": 900, "y": 150 },
+      "display_position": {
+        "x": 900,
+        "y": 150
+      },
       "tool_id": "tool_resolve_order",
       "tool_type": "local",
       "wait_for_result": true,
       "edges": [
-        { "id": "resolve-found", "destination_node_id": "order_loaded", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "ORDER_FOUND" }] } },
-        { "id": "resolve-notfound", "destination_node_id": "ask_order_number", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "ORDER_NOT_FOUND" }] } }
+        {
+          "id": "resolve-found",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "ORDER_FOUND"
+              }
+            ]
+          }
+        },
+        {
+          "id": "resolve-notfound",
+          "destination_node_id": "ask_order_number",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "ORDER_NOT_FOUND"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "resolve-else", "destination_node_id": "list_orders_start", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "resolve-else",
+        "destination_node_id": "list_orders_start",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "order_loaded",
       "type": "conversation",
       "name": "Order Loaded (intent router)",
-      "display_position": { "x": 1200, "y": 0 },
-      "instruction": { "type": "prompt", "text": "The customer's order is now loaded. Briefly confirm the order number, then ask what they'd like help with — do not recite the full order unprompted. Answer simple questions (items, totals, dates) from the data already available. Route to a branch only when the customer clearly asks for one of: live tracking / where the parcel is; changing the delivery address; reporting that the order has not arrived; or reporting that the tracking address or tracking info is wrong. If they're done or say goodbye, end the call." },
+      "display_position": {
+        "x": 1200,
+        "y": 0
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "The customer's order is now loaded. Briefly confirm the order number, then ask what they'd like help with — do not recite the full order unprompted. Answer simple questions (items, totals, dates) from the data already available. Route to a branch only when the customer clearly asks for one of: live tracking / where the parcel is; changing the delivery address; reporting that the order has not arrived; or reporting that the tracking address or tracking info is wrong. If you have already helped with two separate requests on this call, do not start a third — wrap up and end the call. If they're done or say goodbye, end the call."
+      },
       "edges": [
-        { "id": "router-tracking", "destination_node_id": "e1_fulfilled", "transition_condition": { "type": "prompt", "prompt": "Customer asks where their parcel is right now, or asks for live tracking, or says yes to a tracking offer" } },
-        { "id": "router-address", "destination_node_id": "addr_payment_check", "transition_condition": { "type": "prompt", "prompt": "Customer asks to change or correct the delivery / shipping address for the order" } },
-        { "id": "router-notdelivered", "destination_node_id": "nd_tracking_requested_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order has not arrived / was not delivered / they never received it" } },
-        { "id": "router-trackingwrong", "destination_node_id": "tw_confirm", "transition_condition": { "type": "prompt", "prompt": "Customer says the tracking address is wrong or the tracking information looks wrong" } }
+        {
+          "id": "router-tracking",
+          "destination_node_id": "e1_fulfilled",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer asks where their parcel is right now, or asks for live tracking, or says yes to a tracking offer"
+          }
+        },
+        {
+          "id": "router-address",
+          "destination_node_id": "addr_payment_check",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer asks to change or correct the delivery / shipping address for the order"
+          }
+        },
+        {
+          "id": "router-notdelivered",
+          "destination_node_id": "nd_tracking_requested_check",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer says the order has not arrived / was not delivered / they never received it"
+          }
+        },
+        {
+          "id": "router-trackingwrong",
+          "destination_node_id": "tw_confirm",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer says the tracking address is wrong or the tracking information looks wrong"
+          }
+        }
       ],
-      "else_edge": { "id": "router-else", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "router-else",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
-
     {
       "id": "list_orders_start",
       "type": "function",
       "name": "List Orders",
-      "display_position": { "x": 1200, "y": 1100 },
+      "display_position": {
+        "x": 1200,
+        "y": 1100
+      },
       "tool_id": "tool_list_orders_start",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "liststart-always", "destination_node_id": "speak_listed_orders", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "liststart-always",
+        "destination_node_id": "speak_listed_orders",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "list_orders_more",
       "type": "function",
       "name": "List More",
-      "display_position": { "x": 1500, "y": 1200 },
+      "display_position": {
+        "x": 1500,
+        "y": 1200
+      },
       "tool_id": "tool_list_orders_more",
       "tool_type": "local",
       "wait_for_result": true,
       "edges": [
-        { "id": "listmore-listed", "destination_node_id": "speak_listed_orders", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "ORDERS_LISTED" }] } }
+        {
+          "id": "listmore-listed",
+          "destination_node_id": "speak_listed_orders",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "ORDERS_LISTED"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "listmore-else", "destination_node_id": "ticket_listing_limit", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "listmore-else",
+        "destination_node_id": "ticket_listing_limit",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "list_orders_repeat",
       "type": "function",
       "name": "Repeat Orders",
-      "display_position": { "x": 1500, "y": 1000 },
+      "display_position": {
+        "x": 1500,
+        "y": 1000
+      },
       "tool_id": "tool_list_orders_repeat",
       "tool_type": "local",
       "wait_for_result": true,
       "edges": [
-        { "id": "listrepeat-listed", "destination_node_id": "speak_listed_orders", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "ORDERS_LISTED" }] } }
+        {
+          "id": "listrepeat-listed",
+          "destination_node_id": "speak_listed_orders",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "ORDERS_LISTED"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "listrepeat-else", "destination_node_id": "ticket_listing_limit", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "listrepeat-else",
+        "destination_node_id": "ticket_listing_limit",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "speak_listed_orders",
       "type": "conversation",
       "name": "Speak Listed Orders",
-      "display_position": { "x": 1800, "y": 1100 },
-      "instruction": { "type": "prompt", "text": "Speak each order's number, date, total and currency in a natural sentence, not a bare list of fields. Then ask naturally what they'd like next. If the result's hasMore field is true, ask something like: 'Would you like to hear more orders, hear this list again, or tell me an order number to look into?' If hasMore is false, do not offer 'more' — say this is the end of the list instead, e.g. 'That's the end of your recent orders. Want me to repeat that, or do you have an order number for me?'" },
+      "display_position": {
+        "x": 1800,
+        "y": 1100
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Speak each order's number, date, total and currency in a natural sentence, not a bare list of fields. Then ask naturally what they'd like next. If the result's hasMore field is true, ask something like: 'Would you like to hear more orders, hear this list again, or tell me an order number to look into?' If hasMore is false, do not offer 'more' — say this is the end of the list instead, e.g. 'That's the end of your recent orders. Want me to repeat that, or do you have an order number for me?'"
+      },
       "edges": [
-        { "id": "listed-number", "destination_node_id": "capture_order_number", "transition_condition": { "type": "prompt", "prompt": "Customer states an order number" } },
-        { "id": "listed-more", "destination_node_id": "list_orders_more", "transition_condition": { "type": "prompt", "prompt": "Customer asks for more" } },
-        { "id": "listed-repeat", "destination_node_id": "list_orders_repeat", "transition_condition": { "type": "prompt", "prompt": "Customer asks to repeat" } }
+        {
+          "id": "listed-number",
+          "destination_node_id": "capture_order_number",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer states an order number"
+          }
+        },
+        {
+          "id": "listed-more",
+          "destination_node_id": "list_orders_more",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer asks for more"
+          }
+        },
+        {
+          "id": "listed-repeat",
+          "destination_node_id": "list_orders_repeat",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer asks to repeat"
+          }
+        }
       ]
     },
     {
       "id": "ticket_listing_limit",
       "type": "function",
       "name": "Listing Limit Ticket",
-      "display_position": { "x": 2100, "y": 1100 },
+      "display_position": {
+        "x": 2100,
+        "y": 1100
+      },
       "tool_id": "tool_ticket_listing_limit",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "ticketlisting-always", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "ticketlisting-always",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
-
     {
       "id": "e1_fulfilled",
       "type": "branch",
       "name": "Tracking: fulfilled?",
-      "display_position": { "x": 1500, "y": -1400 },
+      "display_position": {
+        "x": 1500,
+        "y": -1400
+      },
       "edges": [
-        { "id": "e1ful-yes", "destination_node_id": "track_call", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{fulfilled}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "e1ful-yes",
+          "destination_node_id": "track_call",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{fulfilled}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "e1ful-else", "destination_node_id": "e1_payment", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "e1ful-else",
+        "destination_node_id": "e1_payment",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "e1_payment",
       "type": "branch",
       "name": "Tracking: paid?",
-      "display_position": { "x": 1800, "y": -1400 },
+      "display_position": {
+        "x": 1800,
+        "y": -1400
+      },
       "edges": [
-        { "id": "e1pay-yes", "destination_node_id": "e1_shipped", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{paid}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "e1pay-yes",
+          "destination_node_id": "e1_shipped",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{paid}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "e1pay-else", "destination_node_id": "speak_refunded", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "e1pay-else",
+        "destination_node_id": "speak_refunded",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "speak_refunded",
       "type": "conversation",
       "name": "Refunded — cannot ship",
-      "display_position": { "x": 1800, "y": -1250 },
-      "instruction": { "type": "prompt", "text": "Tell the customer this order has been refunded or only partially paid, so it will not be shipped, and there is no tracking to share. Be brief and polite." },
-      "always_edge": { "id": "refunded-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 1800,
+        "y": -1250
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer this order has been refunded or only partially paid, so it will not be shipped, and there is no tracking to share. Be brief and polite. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_refunded-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_refunded-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "e1_shipped",
       "type": "branch",
       "name": "Tracking: shipped?",
-      "display_position": { "x": 2100, "y": -1400 },
+      "display_position": {
+        "x": 2100,
+        "y": -1400
+      },
       "edges": [
-        { "id": "e1ship-yes", "destination_node_id": "track_call", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{shipped}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "e1ship-yes",
+          "destination_node_id": "track_call",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{shipped}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "e1ship-else", "destination_node_id": "e1_notshipped_overdue", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "e1ship-else",
+        "destination_node_id": "e1_notshipped_overdue",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "e1_notshipped_overdue",
       "type": "branch",
       "name": "Not shipped: overdue?",
-      "display_position": { "x": 2100, "y": -1250 },
+      "display_position": {
+        "x": 2100,
+        "y": -1250
+      },
       "edges": [
-        { "id": "e1nso-yes", "destination_node_id": "ticket_order_not_shipped", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{overdue}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "e1nso-yes",
+          "destination_node_id": "ticket_order_not_shipped",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{overdue}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "e1nso-else", "destination_node_id": "speak_ship_soon", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "e1nso-else",
+        "destination_node_id": "speak_ship_soon",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "speak_ship_soon",
       "type": "conversation",
       "name": "Will ship soon",
-      "display_position": { "x": 2400, "y": -1250 },
-      "instruction": { "type": "prompt", "text": "Reassure the customer that their paid order is expected to ship soon and is still within the estimated delivery window. Be brief." },
+      "display_position": {
+        "x": 2400,
+        "y": -1250
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Reassure the customer their paid order is expected to ship soon and is still within the estimated delivery window. Then ask if there is anything else you can help with."
+      },
       "edges": [
-        { "id": "shipsoon-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order has not arrived / was not delivered / disputes the status" } }
+        {
+          "id": "speak_ship_soon-dispute",
+          "destination_node_id": "nd_delivered_check",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer says the order has not arrived / was not delivered / disputes the delivery"
+          }
+        },
+        {
+          "id": "speak_ship_soon-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
       ],
-      "else_edge": { "id": "shipsoon-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "speak_ship_soon-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "ticket_order_not_shipped",
       "type": "function",
       "name": "Ticket: order not shipped",
-      "display_position": { "x": 2400, "y": -1400 },
+      "display_position": {
+        "x": 2400,
+        "y": -1400
+      },
       "tool_id": "tool_ticket_order_not_shipped",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "ticketnotship-always", "destination_node_id": "speak_not_shipped_ticket", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "ticketnotship-always",
+        "destination_node_id": "speak_not_shipped_ticket",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "speak_not_shipped_ticket",
       "type": "conversation",
       "name": "Speak not-shipped ticket",
-      "display_position": { "x": 2700, "y": -1400 },
-      "instruction": { "type": "prompt", "text": "Apologise for the delay. Explain there has been an issue with shipping, that a support ticket has been created and an agent will reach out shortly. Tell them the ticket id {{ticket_id}}." },
-      "always_edge": { "id": "speaknotship-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 2700,
+        "y": -1400
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise for the delay. Explain there has been an issue with shipping, that a support ticket has been created and an agent will reach out shortly. Tell them the ticket id {{ticket_id}}. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_not_shipped_ticket-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_not_shipped_ticket-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "track_call",
       "type": "function",
       "name": "Track Order",
-      "display_position": { "x": 2400, "y": -1550 },
+      "display_position": {
+        "x": 2400,
+        "y": -1550
+      },
       "tool_id": "tool_get_tracking_status",
       "tool_type": "local",
       "wait_for_result": true,
       "edges": [
-        { "id": "track-found", "destination_node_id": "e1_track_overdue", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "TRACKING_FOUND" }] } }
+        {
+          "id": "track-found",
+          "destination_node_id": "e1_track_overdue",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "TRACKING_FOUND"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "track-else", "destination_node_id": "ticket_tracking_provider", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "track-else",
+        "destination_node_id": "ticket_tracking_provider",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "ticket_tracking_provider",
       "type": "function",
       "name": "Ticket: tracking provider",
-      "display_position": { "x": 2700, "y": -1750 },
+      "display_position": {
+        "x": 2700,
+        "y": -1750
+      },
       "tool_id": "tool_ticket_tracking_provider",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "ticketprovider-always", "destination_node_id": "speak_provider_ticket", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "ticketprovider-always",
+        "destination_node_id": "speak_provider_ticket",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "speak_provider_ticket",
       "type": "conversation",
       "name": "Speak provider ticket",
-      "display_position": { "x": 3000, "y": -1750 },
-      "instruction": { "type": "prompt", "text": "Apologise — the tracking provider is unavailable right now. Tell the customer a support ticket has been created and an agent will follow up. Give the ticket id {{ticket_id}}." },
-      "always_edge": { "id": "speakprovider-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 3000,
+        "y": -1750
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise — the tracking provider is unavailable right now. Tell the customer a support ticket has been created and an agent will follow up. Give the ticket id {{ticket_id}}. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_provider_ticket-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_provider_ticket-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "e1_track_overdue",
       "type": "branch",
       "name": "Tracking: overdue?",
-      "display_position": { "x": 2700, "y": -1550 },
+      "display_position": {
+        "x": 2700,
+        "y": -1550
+      },
       "edges": [
-        { "id": "e1to-yes", "destination_node_id": "e1_overdue_hastracking", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{overdue}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "e1to-yes",
+          "destination_node_id": "e1_overdue_hastracking",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{overdue}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "e1to-else", "destination_node_id": "e1_within_hastracking", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "e1to-else",
+        "destination_node_id": "e1_within_hastracking",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "e1_within_hastracking",
       "type": "branch",
       "name": "Within ETA: has tracking?",
-      "display_position": { "x": 3000, "y": -1450 },
+      "display_position": {
+        "x": 3000,
+        "y": -1450
+      },
       "edges": [
-        { "id": "e1wh-yes", "destination_node_id": "speak_tracking_within", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{has_tracking}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "e1wh-yes",
+          "destination_node_id": "speak_tracking_within",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{has_tracking}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "e1wh-else", "destination_node_id": "speak_ship_soon2", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "e1wh-else",
+        "destination_node_id": "speak_ship_soon2",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "speak_ship_soon2",
       "type": "conversation",
       "name": "Shipped, no scans yet",
-      "display_position": { "x": 3300, "y": -1500 },
-      "instruction": { "type": "prompt", "text": "Tell the customer the order has shipped but the carrier has not posted any scans yet, and it is still within the estimated delivery window. Be brief and reassuring." },
+      "display_position": {
+        "x": 3300,
+        "y": -1500
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer the order has shipped but the carrier has not posted any scans yet, and it is still within the estimated delivery window. Then ask if there is anything else you can help with."
+      },
       "edges": [
-        { "id": "shipsoon2-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order has not arrived / was not delivered / disputes the status" } }
+        {
+          "id": "speak_ship_soon2-dispute",
+          "destination_node_id": "nd_delivered_check",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer says the order has not arrived / was not delivered / disputes the delivery"
+          }
+        },
+        {
+          "id": "speak_ship_soon2-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
       ],
-      "else_edge": { "id": "shipsoon2-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "speak_ship_soon2-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "speak_tracking_within",
       "type": "conversation",
       "name": "Speak tracking (within ETA)",
-      "display_position": { "x": 3300, "y": -1400 },
-      "instruction": { "type": "prompt", "text": "If {{delivered}} is true, tell the customer the parcel has already been delivered: {{last_event}} at {{last_checkpoint}} on {{delivery_date}}. Otherwise tell them the latest event {{last_event}}, where it was {{last_checkpoint}}, and that it's expected by {{eta}} — but if {{eta}} is empty, just say it's expected soon. Never read out any tracking URL. Then let them respond." },
+      "display_position": {
+        "x": 3300,
+        "y": -1400
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "If {{delivered}} is true, tell the customer the parcel has already been delivered: {{last_event}} at {{last_checkpoint}} on {{delivery_date}}. Otherwise give the latest event {{last_event}}, where it was {{last_checkpoint}}, and that it is expected by {{eta}} — if {{eta}} is empty, say it is expected soon. Do NOT ask whether they received it. Never read out any tracking URL. Then ask if there is anything else you can help with."
+      },
       "edges": [
-        { "id": "trackwithin-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order has not arrived / was not delivered / disputes the status" } }
+        {
+          "id": "speak_tracking_within-dispute",
+          "destination_node_id": "nd_delivered_check",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer says the order has not arrived / was not delivered / disputes the delivery"
+          }
+        },
+        {
+          "id": "speak_tracking_within-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
       ],
-      "else_edge": { "id": "trackwithin-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "speak_tracking_within-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "e1_overdue_hastracking",
       "type": "branch",
       "name": "Overdue: has tracking?",
-      "display_position": { "x": 3000, "y": -1650 },
+      "display_position": {
+        "x": 3000,
+        "y": -1650
+      },
       "edges": [
-        { "id": "e1oh-yes", "destination_node_id": "e1_overdue_delivered", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{has_tracking}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "e1oh-yes",
+          "destination_node_id": "e1_overdue_delivered",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{has_tracking}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "e1oh-else", "destination_node_id": "ticket_delivery_delayed", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "e1oh-else",
+        "destination_node_id": "ticket_delivery_delayed",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "ticket_delivery_delayed",
       "type": "function",
       "name": "Ticket: delivery delayed",
-      "display_position": { "x": 3300, "y": -1750 },
+      "display_position": {
+        "x": 3300,
+        "y": -1750
+      },
       "tool_id": "tool_ticket_delivery_delayed",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "ticketdelayed-always", "destination_node_id": "speak_delayed_ticket", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "ticketdelayed-always",
+        "destination_node_id": "speak_delayed_ticket",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "speak_delayed_ticket",
       "type": "conversation",
       "name": "Speak delayed ticket",
-      "display_position": { "x": 3600, "y": -1750 },
-      "instruction": { "type": "prompt", "text": "Apologise for the delay. Explain the delivery is overdue and the courier has not posted online updates, so a support ticket has been created. Give the ticket id {{ticket_id}} and say an agent will follow up." },
-      "always_edge": { "id": "speakdelayed-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 3600,
+        "y": -1750
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise for the delay. Explain the delivery is overdue and the courier has not posted online updates, so a support ticket has been created. Give the ticket id {{ticket_id}} and say an agent will follow up. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_delayed_ticket-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_delayed_ticket-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "e1_overdue_delivered",
       "type": "branch",
       "name": "Overdue: delivered?",
-      "display_position": { "x": 3300, "y": -1600 },
+      "display_position": {
+        "x": 3300,
+        "y": -1600
+      },
       "edges": [
-        { "id": "e1od-yes", "destination_node_id": "speak_delivered_late", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{delivered}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "e1od-yes",
+          "destination_node_id": "speak_delivered_late",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{delivered}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "e1od-else", "destination_node_id": "speak_tracking_overdue", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "e1od-else",
+        "destination_node_id": "speak_tracking_overdue",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "speak_tracking_overdue",
       "type": "conversation",
       "name": "Speak tracking (overdue, not delivered)",
-      "display_position": { "x": 3600, "y": -1650 },
-      "instruction": { "type": "prompt", "text": "Tell the customer the latest tracking event {{last_event}} and where it was {{last_checkpoint}}. It is running behind the estimate but is still in transit. Never read out any tracking URL." },
+      "display_position": {
+        "x": 3600,
+        "y": -1650
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Give the latest tracking event {{last_event}} and where it was {{last_checkpoint}}. It is running behind the estimate but still in transit. Do NOT ask whether they received it. Never read out any tracking URL. Then ask if there is anything else you can help with."
+      },
       "edges": [
-        { "id": "trackoverdue-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order has not arrived / was not delivered / disputes the status" } }
+        {
+          "id": "speak_tracking_overdue-dispute",
+          "destination_node_id": "nd_delivered_check",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer says the order has not arrived / was not delivered / disputes the delivery"
+          }
+        },
+        {
+          "id": "speak_tracking_overdue-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
       ],
-      "else_edge": { "id": "trackoverdue-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "speak_tracking_overdue-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "speak_delivered_late",
       "type": "conversation",
       "name": "Speak delivered (late)",
-      "display_position": { "x": 3600, "y": -1550 },
-      "instruction": { "type": "prompt", "text": "Tell the customer the parcel is marked delivered: {{last_event}} at {{last_checkpoint}} on {{delivery_date}}. If {{delivered_late}} is true, apologise that it arrived later than estimated; otherwise do not apologise. Never read out any tracking URL. Then let them respond." },
+      "display_position": {
+        "x": 3600,
+        "y": -1550
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer the parcel is marked delivered: {{last_event}} at {{last_checkpoint}} on {{delivery_date}}. If {{delivered_late}} is true, apologise that it arrived later than estimated. Do NOT ask whether they received it. Never read out any tracking URL. Then ask if there is anything else you can help with."
+      },
       "edges": [
-        { "id": "deliveredlate-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the parcel has not actually arrived, was not delivered, or disputes the delivered status" } }
+        {
+          "id": "speak_delivered_late-dispute",
+          "destination_node_id": "nd_delivered_check",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer says the order has not arrived / was not delivered / disputes the delivery"
+          }
+        },
+        {
+          "id": "speak_delivered_late-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
       ],
-      "else_edge": { "id": "deliveredlate-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "speak_delivered_late-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
-
     {
       "id": "addr_payment_check",
       "type": "branch",
       "name": "Address: paid?",
-      "display_position": { "x": 1500, "y": -700 },
+      "display_position": {
+        "x": 1500,
+        "y": -700
+      },
       "edges": [
-        { "id": "addrpay-yes", "destination_node_id": "ask_email_1", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{paid}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "addrpay-yes",
+          "destination_node_id": "ask_email_1",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{paid}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "addrpay-else", "destination_node_id": "speak_addr_refunded", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "addrpay-else",
+        "destination_node_id": "speak_addr_refunded",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "speak_addr_refunded",
       "type": "conversation",
       "name": "Address: refunded — cannot change",
-      "display_position": { "x": 1800, "y": -550 },
-      "instruction": { "type": "prompt", "text": "Tell the customer that because this order is refunded or not fully paid, its delivery details cannot be changed. Be brief and polite." },
-      "always_edge": { "id": "addrrefunded-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 1800,
+        "y": -550
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer that because this order is refunded or not fully paid, its delivery details cannot be changed. Be brief and polite. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_addr_refunded-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_addr_refunded-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "ask_email_1",
       "type": "conversation",
       "name": "Ask email (1st)",
-      "display_position": { "x": 1800, "y": -700 },
-      "instruction": { "type": "prompt", "text": "Explain that, for security, you need to verify their identity before changing the address. Ask them to say the email address on the order." },
-      "always_edge": { "id": "askemail1-always", "destination_node_id": "verify_1", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 1800,
+        "y": -700
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Explain that, for security, you need to verify their identity before changing the address. Ask them to say the email address on the order."
+      },
+      "always_edge": {
+        "id": "askemail1-always",
+        "destination_node_id": "verify_1",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "verify_1",
       "type": "function",
       "name": "Verify identity (1st)",
-      "display_position": { "x": 2100, "y": -700 },
+      "display_position": {
+        "x": 2100,
+        "y": -700
+      },
       "tool_id": "tool_verify_identity",
       "tool_type": "local",
       "wait_for_result": true,
       "edges": [
-        { "id": "verify1-ok", "destination_node_id": "addr_priority", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "VERIFIED" }] } }
+        {
+          "id": "verify1-ok",
+          "destination_node_id": "addr_priority",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "VERIFIED"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "verify1-else", "destination_node_id": "ask_email_2", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "verify1-else",
+        "destination_node_id": "ask_email_2",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "ask_email_2",
       "type": "conversation",
       "name": "Ask email (2nd, last try)",
-      "display_position": { "x": 2100, "y": -550 },
-      "instruction": { "type": "prompt", "text": "Tell the customer that didn't match the order. Ask them to say the email address once more — this is the last attempt." },
-      "always_edge": { "id": "askemail2-always", "destination_node_id": "verify_2", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 2100,
+        "y": -550
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer that didn't match the order. Ask them to say the email address once more — this is the last attempt."
+      },
+      "always_edge": {
+        "id": "askemail2-always",
+        "destination_node_id": "verify_2",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "verify_2",
       "type": "function",
       "name": "Verify identity (2nd)",
-      "display_position": { "x": 2400, "y": -550 },
+      "display_position": {
+        "x": 2400,
+        "y": -550
+      },
       "tool_id": "tool_verify_identity",
       "tool_type": "local",
       "wait_for_result": true,
       "edges": [
-        { "id": "verify2-ok", "destination_node_id": "addr_priority", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{result_code}}", "operator": "==", "right": "VERIFIED" }] } }
+        {
+          "id": "verify2-ok",
+          "destination_node_id": "addr_priority",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "VERIFIED"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "verify2-else", "destination_node_id": "speak_unauthorized", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "verify2-else",
+        "destination_node_id": "speak_unauthorized",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "speak_unauthorized",
       "type": "conversation",
       "name": "Unauthorized",
-      "display_position": { "x": 2700, "y": -550 },
-      "instruction": { "type": "prompt", "text": "Politely tell the customer you could not verify their identity, so you are unable to change the delivery address on this call. Suggest they try again later with the order's email." },
-      "always_edge": { "id": "unauth-always", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 2700,
+        "y": -550
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Politely tell the customer you could not verify their identity, so you are unable to change the delivery address on this call. Suggest they try again later with the order's email."
+      },
+      "always_edge": {
+        "id": "unauth-always",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "addr_priority",
       "type": "branch",
       "name": "Address: already shipped?",
-      "display_position": { "x": 2400, "y": -700 },
+      "display_position": {
+        "x": 2400,
+        "y": -700
+      },
       "edges": [
-        { "id": "addrprio-shipped", "destination_node_id": "addr_ask_address_mid", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{shipped}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "addrprio-shipped",
+          "destination_node_id": "addr_ask_address_mid",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{shipped}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "addrprio-else", "destination_node_id": "addr_ask_address_low", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "addrprio-else",
+        "destination_node_id": "addr_ask_address_low",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "addr_ask_address_low",
       "type": "conversation",
       "name": "Ask new address (not shipped)",
-      "display_position": { "x": 2700, "y": -800 },
-      "instruction": { "type": "prompt", "text": "Ask the customer for the new delivery address they want on the order." },
-      "always_edge": { "id": "addrlow-always", "destination_node_id": "addr_ticket_low", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 2700,
+        "y": -800
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Ask the customer for the new delivery address they want on the order."
+      },
+      "always_edge": {
+        "id": "addrlow-always",
+        "destination_node_id": "addr_ticket_low",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "addr_ticket_low",
       "type": "function",
       "name": "Ticket: address change (low)",
-      "display_position": { "x": 3000, "y": -800 },
+      "display_position": {
+        "x": 3000,
+        "y": -800
+      },
       "tool_id": "tool_ticket_address_change",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "addrticketlow-always", "destination_node_id": "speak_addr_low", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "addrticketlow-always",
+        "destination_node_id": "speak_addr_low",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "speak_addr_low",
       "type": "conversation",
       "name": "Speak address ticket (low)",
-      "display_position": { "x": 3300, "y": -800 },
-      "instruction": { "type": "prompt", "text": "Tell the customer a support ticket has been created to update their address, give the ticket id {{ticket_id}}, and say the address will be updated shortly." },
-      "always_edge": { "id": "speakaddrlow-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 3300,
+        "y": -800
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer a support ticket has been created to update their address, give the ticket id {{ticket_id}}, and say the address will be updated shortly. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_addr_low-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_addr_low-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "addr_ask_address_mid",
       "type": "conversation",
       "name": "Ask new address (shipped)",
-      "display_position": { "x": 2700, "y": -600 },
-      "instruction": { "type": "prompt", "text": "Ask the customer for the new delivery address they want on the order." },
-      "always_edge": { "id": "addrmid-always", "destination_node_id": "addr_ticket_mid", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 2700,
+        "y": -600
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Ask the customer for the new delivery address they want on the order."
+      },
+      "always_edge": {
+        "id": "addrmid-always",
+        "destination_node_id": "addr_ticket_mid",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "addr_ticket_mid",
       "type": "function",
       "name": "Ticket: address change (mid-shipment)",
-      "display_position": { "x": 3000, "y": -600 },
+      "display_position": {
+        "x": 3000,
+        "y": -600
+      },
       "tool_id": "tool_ticket_address_change_midship",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "addrticketmid-always", "destination_node_id": "speak_addr_mid", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "addrticketmid-always",
+        "destination_node_id": "speak_addr_mid",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "speak_addr_mid",
       "type": "conversation",
       "name": "Speak address ticket (mid-shipment)",
-      "display_position": { "x": 3300, "y": -600 },
-      "instruction": { "type": "prompt", "text": "Tell the customer a support ticket has been created to change the address mid-shipment, give the ticket id {{ticket_id}}, and warn that changing the address after dispatch may incur higher costs." },
-      "always_edge": { "id": "speakaddrmid-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 3300,
+        "y": -600
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer a support ticket has been created to change the address mid-shipment, give the ticket id {{ticket_id}}, and warn that changing the address after dispatch may incur higher costs. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_addr_mid-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_addr_mid-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
-
     {
       "id": "nd_tracking_requested_check",
       "type": "branch",
       "name": "Not delivered: tracking already run?",
-      "display_position": { "x": 1500, "y": 600 },
+      "display_position": {
+        "x": 1500,
+        "y": 600
+      },
       "edges": [
-        { "id": "ndtr-yes", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{tracking_requested}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "ndtr-yes",
+          "destination_node_id": "nd_delivered_check",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{tracking_requested}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "ndtr-else", "destination_node_id": "e1_fulfilled", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "ndtr-else",
+        "destination_node_id": "e1_fulfilled",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "nd_delivered_check",
       "type": "branch",
       "name": "Not delivered: carrier says delivered?",
-      "display_position": { "x": 1800, "y": 600 },
+      "display_position": {
+        "x": 1800,
+        "y": 600
+      },
       "edges": [
-        { "id": "ndd-yes", "destination_node_id": "nd_delivered_speak", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{delivered}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "ndd-yes",
+          "destination_node_id": "nd_delivered_speak",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{delivered}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "ndd-else", "destination_node_id": "nd_not_delivered_speak", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "ndd-else",
+        "destination_node_id": "nd_not_delivered_speak",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "nd_delivered_speak",
       "type": "conversation",
       "name": "Delivered-not-received (reuse vars)",
-      "display_position": { "x": 2100, "y": 500 },
-      "instruction": { "type": "prompt", "text": "The carrier already marked this parcel delivered (you know this from the earlier tracking lookup), so do NOT look it up again. Say it was marked delivered on {{delivery_date}} around {{last_checkpoint}}, and apologise for the confusion. Then help them locate it: if {{has_notes}} is true, read the delivery note {{notes}} and ask them to check there; otherwise ask them to check any safe-place/porch, with household members or flatmates, immediate neighbours, and building reception or security cameras nearby. If they then find it, wrap up. If they still cannot find it after checking, tell them you'll raise it for a human agent." },
+      "display_position": {
+        "x": 2100,
+        "y": 500
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "The carrier already marked this parcel delivered (you know this from the earlier tracking lookup), so do NOT look it up again. Say it was marked delivered on {{delivery_date}} around {{last_checkpoint}}, and apologise for the confusion. Then help them locate it: if {{has_notes}} is true, read the delivery note {{notes}} and ask them to check there; otherwise ask them to check any safe-place/porch, with household members or flatmates, immediate neighbours, and building reception or security cameras nearby. If they then find it, wrap up. If they still cannot find it after checking, tell them you'll raise it for a human agent."
+      },
       "edges": [
-        { "id": "ndspeak-notfound", "destination_node_id": "nd_ticket", "transition_condition": { "type": "prompt", "prompt": "Customer has checked and still cannot find the parcel, or asks for further help / escalation" } }
+        {
+          "id": "ndspeak-notfound",
+          "destination_node_id": "nd_ticket",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer has checked and still cannot find the parcel, or asks for further help / escalation"
+          }
+        }
       ],
-      "else_edge": { "id": "ndspeak-found", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "ndspeak-found",
+        "destination_node_id": "anything_else",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "nd_ticket",
       "type": "function",
       "name": "Ticket: delivered not received",
-      "display_position": { "x": 2400, "y": 450 },
+      "display_position": {
+        "x": 2400,
+        "y": 450
+      },
       "tool_id": "tool_ticket_delivered_not_received",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "ndticket-always", "destination_node_id": "speak_nd_ticket", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "ndticket-always",
+        "destination_node_id": "speak_nd_ticket",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "speak_nd_ticket",
       "type": "conversation",
       "name": "Speak delivered-not-received ticket",
-      "display_position": { "x": 2700, "y": 450 },
-      "instruction": { "type": "prompt", "text": "Apologise. Explain that because tracking shows delivered but they haven't received it, you've opened a high-priority support ticket and an agent will call them back. Give the ticket id {{ticket_id}}." },
-      "always_edge": { "id": "speakndticket-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 2700,
+        "y": 450
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise. Explain that because tracking shows delivered but they haven't received it, you've opened a high-priority support ticket and an agent will call them back. Give the ticket id {{ticket_id}}. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_nd_ticket-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_nd_ticket-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "nd_not_delivered_speak",
       "type": "conversation",
       "name": "Not-yet-delivered (reuse vars)",
-      "display_position": { "x": 2100, "y": 750 },
-      "instruction": { "type": "prompt", "text": "Tracking shows this parcel has NOT been delivered yet, and you already have its status from the earlier lookup — do NOT look it up again. Explain the current situation from the known facts and reassure them: if {{paid}} is false, payment is incomplete so it hasn't shipped; if it hasn't shipped ({{shipped}} false) and {{shipped_late}} is false, it's preparing to ship within the expected window; if {{shipped_late}} is true, shipping is running late and a support ticket is already open. If it has shipped, restate the latest event {{last_event}} at {{last_checkpoint}} and that it's expected by {{eta}} (if {{eta}} is empty, say 'soon' instead of a date); if {{overdue}} is false reassure it's on the way, and if {{overdue}} is true acknowledge it's running behind. If the order is overdue and the customer wants it escalated, offer to raise a ticket." },
+      "display_position": {
+        "x": 2100,
+        "y": 750
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tracking shows this parcel has NOT been delivered yet, and you already have its status from the earlier lookup — do NOT look it up again. Explain the current situation from the known facts and reassure them: if {{paid}} is false, payment is incomplete so it hasn't shipped; if it hasn't shipped ({{shipped}} false) and {{shipped_late}} is false, it's preparing to ship within the expected window; if {{shipped_late}} is true, shipping is running late and a support ticket is already open. If it has shipped, restate the latest event {{last_event}} at {{last_checkpoint}} and that it's expected by {{eta}} (if {{eta}} is empty, say 'soon' instead of a date); if {{overdue}} is false reassure it's on the way, and if {{overdue}} is true acknowledge it's running behind. If the order is overdue and the customer wants it escalated, offer to raise a ticket."
+      },
       "edges": [
-        { "id": "ndnot-escalate", "destination_node_id": "nd_delay_ticket", "transition_condition": { "type": "prompt", "prompt": "Order is overdue and the customer wants it escalated or followed up" } }
+        {
+          "id": "ndnot-escalate",
+          "destination_node_id": "nd_delay_ticket",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Order is overdue and the customer wants it escalated or followed up"
+          }
+        }
       ],
-      "else_edge": { "id": "ndnot-ok", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "ndnot-ok",
+        "destination_node_id": "anything_else",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "nd_delay_ticket",
       "type": "function",
       "name": "Ticket: delay follow-up",
-      "display_position": { "x": 2400, "y": 750 },
+      "display_position": {
+        "x": 2400,
+        "y": 750
+      },
       "tool_id": "tool_ticket_delivery_delayed",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "nddelay-always", "destination_node_id": "speak_nd_delay_ticket", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "nddelay-always",
+        "destination_node_id": "speak_nd_delay_ticket",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "speak_nd_delay_ticket",
       "type": "conversation",
       "name": "Speak delay follow-up ticket",
-      "display_position": { "x": 2700, "y": 750 },
-      "instruction": { "type": "prompt", "text": "Apologise for the delay. Tell the customer a support ticket has been opened (or is already open) for the delayed delivery and an agent will follow up. Give the ticket id {{ticket_id}}." },
-      "always_edge": { "id": "speaknddelay-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 2700,
+        "y": 750
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise for the delay. Tell the customer a support ticket has been opened (or is already open) for the delayed delivery and an agent will follow up. Give the ticket id {{ticket_id}}. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_nd_delay_ticket-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_nd_delay_ticket-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
-
     {
       "id": "tw_confirm",
       "type": "conversation",
       "name": "Tracking wrong: re-confirm",
-      "display_position": { "x": 1500, "y": 1900 },
-      "instruction": { "type": "prompt", "text": "Read back the latest tracking we have — the event {{last_event}} at {{last_checkpoint}} — and ask the customer to confirm whether that information is wrong." },
+      "display_position": {
+        "x": 1500,
+        "y": 1900
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Read back the latest tracking we have — the event {{last_event}} at {{last_checkpoint}} — and ask the customer to confirm whether that information is wrong."
+      },
       "edges": [
-        { "id": "tw-confirms", "destination_node_id": "tw_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer confirms the tracking information is wrong" } }
+        {
+          "id": "tw-confirms",
+          "destination_node_id": "tw_delivered_check",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer confirms the tracking information is wrong"
+          }
+        }
       ],
-      "else_edge": { "id": "tw-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "tw-else",
+        "destination_node_id": "anything_else",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "tw_delivered_check",
       "type": "branch",
       "name": "Tracking wrong: delivered?",
-      "display_position": { "x": 1800, "y": 1900 },
+      "display_position": {
+        "x": 1800,
+        "y": 1900
+      },
       "edges": [
-        { "id": "twd-yes", "destination_node_id": "tw_ticket_delivered", "transition_condition": { "type": "equation", "operator": "||", "equations": [{ "left": "{{delivered}}", "operator": "==", "right": "true" }] } }
+        {
+          "id": "twd-yes",
+          "destination_node_id": "tw_ticket_delivered",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{delivered}}",
+                "operator": "==",
+                "right": "true"
+              }
+            ]
+          }
+        }
       ],
-      "else_edge": { "id": "twd-else", "destination_node_id": "tw_ticket_transit", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "twd-else",
+        "destination_node_id": "tw_ticket_transit",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "tw_ticket_delivered",
       "type": "function",
       "name": "Ticket: tracking wrong (delivered)",
-      "display_position": { "x": 2100, "y": 1850 },
+      "display_position": {
+        "x": 2100,
+        "y": 1850
+      },
       "tool_id": "tool_ticket_tracking_wrong_delivered",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "twtd-always", "destination_node_id": "tw_speak_delivered", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "twtd-always",
+        "destination_node_id": "tw_speak_delivered",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "tw_speak_delivered",
       "type": "conversation",
       "name": "Speak tracking-wrong (delivered)",
-      "display_position": { "x": 2400, "y": 1850 },
-      "instruction": { "type": "prompt", "text": "Apologise. Tell the customer a high-priority support ticket has been created, give the ticket id {{ticket_id}}, and say an agent will contact them shortly and handle this urgently." },
-      "always_edge": { "id": "twspeakd-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 2400,
+        "y": 1850
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise. Tell the customer a high-priority support ticket has been created, give the ticket id {{ticket_id}}, and say an agent will contact them shortly and handle this urgently. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "tw_speak_delivered-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "tw_speak_delivered-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "tw_ticket_transit",
       "type": "function",
       "name": "Ticket: tracking wrong (in transit)",
-      "display_position": { "x": 2100, "y": 1950 },
+      "display_position": {
+        "x": 2100,
+        "y": 1950
+      },
       "tool_id": "tool_ticket_tracking_wrong_transit",
       "tool_type": "local",
       "wait_for_result": true,
-      "always_edge": { "id": "twtt-always", "destination_node_id": "tw_speak_transit", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": {
+        "id": "twtt-always",
+        "destination_node_id": "tw_speak_transit",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
     },
     {
       "id": "tw_speak_transit",
       "type": "conversation",
       "name": "Speak tracking-wrong (in transit)",
-      "display_position": { "x": 2400, "y": 1950 },
-      "instruction": { "type": "prompt", "text": "Apologise. Tell the customer a support ticket has been created, give the ticket id {{ticket_id}}, and say an agent will contact them shortly." },
-      "always_edge": { "id": "twspeakt-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "display_position": {
+        "x": 2400,
+        "y": 1950
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise. Tell the customer a support ticket has been created, give the ticket id {{ticket_id}}, and say an agent will contact them shortly. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "tw_speak_transit-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "tw_speak_transit-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
-
     {
       "id": "anything_else",
       "type": "conversation",
       "name": "Anything else? (max 2 per call)",
-      "display_position": { "x": 3900, "y": 0 },
-      "instruction": { "type": "prompt", "text": "Ask whether there's anything else you can help with. You may ask this AT MOST twice in the whole call; if you have already asked twice, do not ask again — give a brief goodbye and end the call. If the customer is still raising the same unresolved delivery problem, do not end — keep helping. If they're genuinely done or say goodbye, end the call." },
+      "display_position": {
+        "x": 3900,
+        "y": 0
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Ask whether there's anything else you can help with. You may ask this AT MOST twice in the whole call; if you have already asked twice, do not ask again — give a brief goodbye and end the call. If the customer is still raising the same unresolved delivery problem, do not end — keep helping. If they're genuinely done or say goodbye, end the call."
+      },
       "edges": [
-        { "id": "anyelse-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order still has not arrived / was not delivered, or otherwise disputes the delivery and wants it resolved" } },
-        { "id": "anyelse-more", "destination_node_id": "order_loaded", "transition_condition": { "type": "prompt", "prompt": "Customer has a different order-related request (tracking, address, etc.) and has not yet made two requests this call" } }
+        {
+          "id": "anyelse-dispute",
+          "destination_node_id": "nd_delivered_check",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer says the order still has not arrived / was not delivered, or otherwise disputes the delivery and wants it resolved"
+          }
+        },
+        {
+          "id": "anyelse-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer has a different order-related request (tracking, address, etc.) and has not yet made two requests this call"
+          }
+        }
       ],
-      "else_edge": { "id": "anyelse-end", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Else" } }
+      "else_edge": {
+        "id": "anyelse-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
     },
     {
       "id": "end_call",
       "type": "end",
       "name": "End Call",
-      "display_position": { "x": 4200, "y": 0 },
+      "display_position": {
+        "x": 4200,
+        "y": 0
+      },
       "speak_during_execution": true,
-      "instruction": { "type": "prompt", "text": "Thank the customer for calling and say a brief, friendly goodbye. If {{apology}} is true, also apologise once more for the inconvenience caused." }
+      "instruction": {
+        "type": "prompt",
+        "text": "Thank the customer for calling and say a brief, friendly goodbye. If {{apology}} is true, also apologise once more for the inconvenience caused."
+      }
     }
   ]
 }
