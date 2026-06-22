@@ -343,7 +343,7 @@
       "name": "Refunded — cannot ship",
       "display_position": { "x": 1800, "y": -1250 },
       "instruction": { "type": "prompt", "text": "Tell the customer this order has been refunded or only partially paid, so it will not be shipped, and there is no tracking to share. Be brief and polite." },
-      "always_edge": { "id": "refunded-always", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": { "id": "refunded-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
     },
     {
       "id": "e1_shipped",
@@ -423,7 +423,7 @@
       "name": "Speak provider ticket",
       "display_position": { "x": 3000, "y": -1750 },
       "instruction": { "type": "prompt", "text": "Apologise — the tracking provider is unavailable right now. Tell the customer a support ticket has been created and an agent will follow up. Give the ticket id {{ticket_id}}." },
-      "always_edge": { "id": "speakprovider-always", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": { "id": "speakprovider-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
     },
     {
       "id": "e1_track_overdue",
@@ -461,7 +461,7 @@
       "type": "conversation",
       "name": "Speak tracking (within ETA)",
       "display_position": { "x": 3300, "y": -1400 },
-      "instruction": { "type": "prompt", "text": "Tell the customer in plain language what's happening with the parcel: the latest event {{last_event}}, where it was {{last_checkpoint}}, and that it is expected by {{eta}}. Never read out any tracking URL." },
+      "instruction": { "type": "prompt", "text": "If {{delivered}} is true, tell the customer the parcel has already been delivered: {{last_event}} at {{last_checkpoint}} on {{delivery_date}}. Otherwise tell them the latest event {{last_event}}, where it was {{last_checkpoint}}, and that it's expected by {{eta}} — but if {{eta}} is empty, just say it's expected soon. Never read out any tracking URL. Then let them respond." },
       "edges": [
         { "id": "trackwithin-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order has not arrived / was not delivered / disputes the status" } }
       ],
@@ -544,7 +544,7 @@
       "name": "Address: refunded — cannot change",
       "display_position": { "x": 1800, "y": -550 },
       "instruction": { "type": "prompt", "text": "Tell the customer that because this order is refunded or not fully paid, its delivery details cannot be changed. Be brief and polite." },
-      "always_edge": { "id": "addrrefunded-always", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "always_edge": { "id": "addrrefunded-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
     },
     {
       "id": "ask_email_1",
@@ -713,7 +713,7 @@
       "type": "conversation",
       "name": "Not-yet-delivered (reuse vars)",
       "display_position": { "x": 2100, "y": 750 },
-      "instruction": { "type": "prompt", "text": "Tracking shows this parcel has NOT been delivered yet, and you already have its status from the earlier lookup — do NOT look it up again. Explain the current situation from the known facts and reassure them: if {{paid}} is false, payment is incomplete so it hasn't shipped; if it hasn't shipped ({{shipped}} false) and {{shipped_late}} is false, it's preparing to ship within the expected window; if {{shipped_late}} is true, shipping is running late and a support ticket is already open. If it has shipped, restate the latest event {{last_event}} at {{last_checkpoint}} and that it's expected by {{eta}}; if {{overdue}} is false reassure it's on the way, and if {{overdue}} is true acknowledge it's running behind. If the order is overdue and the customer wants it escalated, offer to raise a ticket." },
+      "instruction": { "type": "prompt", "text": "Tracking shows this parcel has NOT been delivered yet, and you already have its status from the earlier lookup — do NOT look it up again. Explain the current situation from the known facts and reassure them: if {{paid}} is false, payment is incomplete so it hasn't shipped; if it hasn't shipped ({{shipped}} false) and {{shipped_late}} is false, it's preparing to ship within the expected window; if {{shipped_late}} is true, shipping is running late and a support ticket is already open. If it has shipped, restate the latest event {{last_event}} at {{last_checkpoint}} and that it's expected by {{eta}} (if {{eta}} is empty, say 'soon' instead of a date); if {{overdue}} is false reassure it's on the way, and if {{overdue}} is true acknowledge it's running behind. If the order is overdue and the customer wants it escalated, offer to raise a ticket." },
       "edges": [
         { "id": "ndnot-escalate", "destination_node_id": "nd_delay_ticket", "transition_condition": { "type": "prompt", "prompt": "Order is overdue and the customer wants it escalated or followed up" } }
       ],
