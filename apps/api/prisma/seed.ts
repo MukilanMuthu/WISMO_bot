@@ -8,6 +8,8 @@ async function main() {
   await prisma.trackingLookupLog.deleteMany();
   await prisma.voiceCallEvent.deleteMany();
   await prisma.supportTicket.deleteMany();
+  // deleteMany() doesn't reset the underlying sequence, so ticketNumber would otherwise keep counting up across reseeds.
+  await prisma.$executeRawUnsafe('ALTER SEQUENCE "SupportTicket_ticketNumber_seq" RESTART WITH 1');
   await prisma.voiceCall.deleteMany();
   await prisma.lineItem.deleteMany();
   await prisma.order.deleteMany();
