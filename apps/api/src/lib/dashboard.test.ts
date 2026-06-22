@@ -27,7 +27,6 @@ describe("dashboard", () => {
       containmentRate: 0,
       escalationRate: 0,
       ticketsByCategory: {},
-      repeatContactRate: 0,
       avgCallDurationSeconds: 0,
     });
   });
@@ -41,16 +40,6 @@ describe("dashboard", () => {
     const metrics = computeAgentMetrics(calls, tickets);
     expect(metrics.containmentRate).toBe(0.5);
     expect(metrics.escalationRate).toBe(0.5);
-  });
-
-  it("flags an order touched by more than one call or ticket as repeat contact", () => {
-    const calls = [
-      { id: "c1", orderId: "o1", startedAt: new Date(), endedAt: null },
-      { id: "c2", orderId: "o1", startedAt: new Date(), endedAt: null },
-      { id: "c3", orderId: "o2", startedAt: new Date(), endedAt: null },
-    ];
-    const metrics = computeAgentMetrics(calls, []);
-    expect(metrics.repeatContactRate).toBeCloseTo(1 / 2);
   });
 
   it("averages call duration only over calls that have ended", () => {

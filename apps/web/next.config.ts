@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@wismo/shared"],
+  output: "standalone",
 };
 
 export default nextConfig;

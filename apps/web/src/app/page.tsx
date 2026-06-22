@@ -60,7 +60,6 @@ export default function LoginPage() {
               <LockKeyhole size={18} /> {submitting ? "Signing in" : "Sign in"} <ArrowRight size={18} />
             </button>
           </form>
-          <p className="demo-hint">Demo password: <code>WismoDemo!2026</code><br />Admin: <code>admin@example.com</code></p>
         </div>
       </section>
     </main>

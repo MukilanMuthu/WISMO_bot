@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+.next
+**/.next
+.git
+docs/
+coverage
+**/*.test.ts
+*.log
+**/.env
+**/.env.local
+**/.env.*.local

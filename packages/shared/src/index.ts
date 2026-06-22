@@ -103,11 +103,10 @@ export interface DashboardDTO {
     order: { orderNumber: string };
   }>;
   // Agent-performance story: how often the agent resolves a call on its own, how often it
-  // escalates and why, how often the same order comes back, and how long calls run.
+  // escalates and why, and how long calls run.
   containmentRate: number;
   escalationRate: number;
   ticketsByCategory: Record<string, number>;
-  repeatContactRate: number;
   avgCallDurationSeconds: number;
 }
 

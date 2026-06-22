@@ -1,6 +1,6 @@
 # WISMO Retell Voice Agent
 
-A "Where is my order?" voice prototype, split into two separately deployable apps:
+A "Where is my order?" voice prototype, split into two separately deployed apps:
 
 - **`apps/api`** — Express JSON API (port `3001`). Owns Prisma, authentication, customer/order validation, retry limits, TrackingMore lookups, support-ticket escalation, and all Retell endpoints.
 - **`apps/web`** — UI-only Next.js SPA (port `3000`). Talks to the API over HTTP with a bearer token; holds no database access.
@@ -19,7 +19,6 @@ Retell Conversation Flow owns dialogue routing; the API owns all business logic.
 ## Apps
 
 - Customer portal (`apps/web`): four password-protected customer accounts with one manager-supplied order each.
-- Shared demo password: `WismoDemo!2026`; customer emails are name-based `@example.com` addresses and administrator email is `admin@example.com`.
 - Operations dashboard (`apps/web`): recent calls, support tickets, and TrackingMore failures.
 - Voice functions (`apps/api`): shared-secret authenticated endpoints under `/retell/functions/*`.
 
@@ -28,6 +27,26 @@ Retell Conversation Flow owns dialogue routing; the API owns all business logic.
 - Unit tests: `npm test` (runs `vitest` in `apps/api`).
 - Manual API testing (Hoppscotch/curl): see [API routes reference](docs/API_ROUTES.md) for every endpoint, auth header, body, and response shape.
 - To hit `/retell/functions/*` routes without a real Retell call, seed fixed `voiceCall` rows with `npm run db:seed:test-calls --workspace @wismo/api` (after the base seed) and use the printed `callId`s.
+
+## Production (Docker)
+
+Runs production builds of both apps plus Postgres, all from one root `.env` (copy `.env.example` → `.env`, never committed).
+
+Build and push images (done on a machine that can build, not necessarily the VPS):
+```
+docker login ghcr.io -u <github-username>   # paste a PAT with write:packages as the password
+docker compose --env-file .env build
+docker compose --env-file .env push
+```
+
+On the VPS, pull and run the prebuilt images:
+```
+docker login ghcr.io -u <github-username>   # packages are private by default
+docker compose --env-file .env pull
+docker compose --env-file .env up -d
+```
+
+The `api` container runs `prisma migrate deploy` then `prisma db seed` on every start, so `docker compose down && docker compose up -d` always comes back with migrations applied and demo data seeded. `NEXT_PUBLIC_API_URL` is resolved into the `web` container's build output at startup (not baked in at image-build time), so the same image works against whatever URL is set in `.env`. Set `IMAGE_TAG` in `.env` to version releases (defaults to `latest`).
 
 ## Provider setup
 

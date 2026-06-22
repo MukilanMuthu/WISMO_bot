@@ -31,8 +31,7 @@ type MetricsCall = { id: string; orderId: string | null; startedAt: Date; endedA
 type MetricsTicket = { callId: string | null; orderId: string | null; category: string };
 
 // The "agent performance story" metrics: how often the agent resolves a call on its own
-// (containment) vs. needs a human (escalation/category breakdown), how often the same order
-// keeps coming back (repeat contact), and how long calls run on average.
+// (containment) vs. needs a human (escalation/category breakdown), and how long calls run on average.
 export function computeAgentMetrics(calls: MetricsCall[], tickets: MetricsTicket[]) {
   const totalCalls = calls.length;
   const callIdsWithTickets = new Set(tickets.map((t) => t.callId).filter((id): id is string => id != null));
@@ -42,18 +41,11 @@ export function computeAgentMetrics(calls: MetricsCall[], tickets: MetricsTicket
   const ticketsByCategory: Record<string, number> = {};
   for (const ticket of tickets) ticketsByCategory[ticket.category] = (ticketsByCategory[ticket.category] ?? 0) + 1;
 
-  const touchesPerOrder = new Map<string, number>();
-  for (const call of calls) if (call.orderId) touchesPerOrder.set(call.orderId, (touchesPerOrder.get(call.orderId) ?? 0) + 1);
-  for (const ticket of tickets) if (ticket.orderId) touchesPerOrder.set(ticket.orderId, (touchesPerOrder.get(ticket.orderId) ?? 0) + 1);
-  const touchedOrders = touchesPerOrder.size;
-  const repeatOrders = [...touchesPerOrder.values()].filter((count) => count > 1).length;
-  const repeatContactRate = touchedOrders === 0 ? 0 : repeatOrders / touchedOrders;
-
   const finishedCalls = calls.filter((call) => call.endedAt != null);
   const avgCallDurationSeconds =
     finishedCalls.length === 0
       ? 0
       : finishedCalls.reduce((sum, call) => sum + (call.endedAt!.getTime() - call.startedAt.getTime()) / 1000, 0) / finishedCalls.length;
 
-  return { containmentRate, escalationRate, ticketsByCategory, repeatContactRate, avgCallDurationSeconds };
+  return { containmentRate, escalationRate, ticketsByCategory, avgCallDurationSeconds };
 }

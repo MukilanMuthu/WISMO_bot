@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, Box, Clock, PhoneCall, Repeat, ShieldCheck, TicketCheck } from "lucide-react";
+import { AlertTriangle, Box, Clock, PhoneCall, ShieldCheck, TicketCheck } from "lucide-react";
 import type { DashboardDTO } from "@wismo/shared";
 import { AppHeader } from "@/components/app-header";
 import { apiFetch } from "@/lib/api";
@@ -24,7 +24,7 @@ export default function AdminPage() {
     );
   }
 
-  const { orderCount, calls, tickets, trackingErrors, containmentRate, escalationRate, ticketsByCategory, repeatContactRate, avgCallDurationSeconds } = data;
+  const { orderCount, calls, tickets, trackingErrors, containmentRate, escalationRate, ticketsByCategory, avgCallDurationSeconds } = data;
 
   return (
     <div className="app-shell admin-shell">
@@ -49,7 +49,6 @@ export default function AdminPage() {
         <section className="metric-grid">
           <div className="metric"><ShieldCheck size={20} /><span>Containment rate<strong>{(containmentRate * 100).toFixed(0)}%</strong></span></div>
           <div className="metric"><TicketCheck size={20} /><span>Escalation rate<strong>{(escalationRate * 100).toFixed(0)}%</strong></span></div>
-          <div className="metric"><Repeat size={20} /><span>Repeat-contact rate<strong>{(repeatContactRate * 100).toFixed(0)}%</strong></span></div>
           <div className="metric"><Clock size={20} /><span>Avg call duration<strong>{(avgCallDurationSeconds / 60).toFixed(1)}m</strong></span></div>
         </section>
 

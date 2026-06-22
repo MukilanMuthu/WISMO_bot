@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, ExternalLink, MapPin, Package, Truck } from "lucide-react";
+import { ArrowLeft, MapPin, Package, Truck } from "lucide-react";
 import type { OrderDTO } from "@wismo/shared";
 import { AppHeader } from "@/components/app-header";
 import { VoiceCallButton } from "@/components/voice-call-button";
@@ -73,7 +73,7 @@ export default function OrderDetailPage() {
             {order.lineItems.map((item) => (
               <div className="line-item" key={item.id}>
                 <span><strong>{item.name}</strong><small>{item.sku}</small><small>{item.carrierName} · {item.trackingId}</small></span>
-                <span>Qty {item.quantity}<a href={item.trackingUrl} target="_blank" rel="noreferrer" aria-label={`Track ${item.name}`}><ExternalLink size={13} /></a></span>
+                <span>Qty {item.quantity}</span>
               </div>
             ))}
             {order.notes ? <div className="order-note"><strong>Order note</strong><p>{order.notes}</p></div> : null}

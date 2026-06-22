@@ -2,18 +2,45 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: wismo
-      POSTGRES_PASSWORD: wismo
-      POSTGRES_DB: wismo
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5430:5432"
+      - "${POSTGRES_PORT:-5430}:5432"
     volumes:
       - wismo_postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wismo -d wismo"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  api:
+    image: ghcr.io/mukilanmuthu/wismo-api:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-3001}:3001"
+
+  web:
+    image: ghcr.io/mukilanmuthu/wismo-web:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    env_file: .env
+    environment:
+      PORT: 3000
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-3000}:3000"
 
 volumes:
   wismo_postgres:
