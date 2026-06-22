@@ -34,7 +34,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   const token = getToken();
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
-  const response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const response = await fetch(`${API_URL}${path}`, { ...options, headers, cache: "no-store" });
   const payload = response.status === 204 ? null : await response.json().catch(() => null);
 
   if (!response.ok) {

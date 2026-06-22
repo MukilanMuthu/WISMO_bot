@@ -12,6 +12,8 @@ const app = express();
 // Allow the separated Next.js frontend to call the API; Bearer auth means no cross-site cookies.
 app.use(cors({ origin: process.env.WEB_ORIGIN ?? "http://localhost:3000" }));
 app.use(express.json({ verify: (req, _res, buf) => { (req as typeof req & { rawBody?: string }).rawBody = buf.toString("utf-8"); } }));
+// Every response here is bearer-token authenticated; none of it should ever be cached.
+app.use((_req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
