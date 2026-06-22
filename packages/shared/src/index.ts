@@ -93,6 +93,7 @@ export interface DashboardDTO {
     category: TicketCategory;
     reason: string;
     status: TicketStatus;
+    callId: string | null;
     customer: { name: string };
   }>;
   trackingErrors: Array<{

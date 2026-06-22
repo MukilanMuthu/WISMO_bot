@@ -54,11 +54,11 @@ export default function OrdersPage() {
 
         <section className="order-list">
           {orders.map((order) => (
-            <article className="order-row" key={order.id}>
+            <Link className="order-row" href={`/orders/${order.id}`} key={order.id} aria-label={`View ${order.orderNumber}`}>
               <div className="order-main">
                 <div className="package-mark"><Box size={20} /></div>
                 <div>
-                  <Link href={`/orders/${order.id}`}><strong>{order.orderNumber}</strong></Link>
+                  <strong>{order.orderNumber}</strong>
                   <p>{order.numItems} items · Ordered {new Date(order.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}</p>
                 </div>
               </div>
@@ -67,10 +67,8 @@ export default function OrdersPage() {
                 <span>{order.fulfillmentStatus.replaceAll("_", " ").toLowerCase()}</span>
               </div>
               <strong className="order-total">{money(order.orderTotal, order.currency)}</strong>
-              <Link className="icon-button" href={`/orders/${order.id}`} title="View order" aria-label={`View ${order.orderNumber}`}>
-                <ArrowRight size={18} />
-              </Link>
-            </article>
+              <ArrowRight size={18} className="icon-button" />
+            </Link>
           ))}
         </section>
       </main>

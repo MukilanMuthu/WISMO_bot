@@ -67,7 +67,11 @@ export default function AdminPage() {
           <div className="data-panel">
             <div className="panel-heading"><h2>Support tickets</h2><span>{tickets.length}</span></div>
             {tickets.length ? tickets.map((ticket) => (
-              <div className="queue-item" key={ticket.id}><span><strong>#{ticket.ticketNumber} · {ticket.customer.name}</strong><small>{ticket.reason}</small></span><i className="tag open">{ticket.status}</i></div>
+              ticket.callId ? (
+                <Link className="queue-item" href={`/admin/calls/${ticket.callId}`} key={ticket.id}><span><strong>#{ticket.ticketNumber} · {ticket.customer.name}</strong><small>{ticket.reason}</small></span><i className="tag open">{ticket.status}</i></Link>
+              ) : (
+                <div className="queue-item" key={ticket.id}><span><strong>#{ticket.ticketNumber} · {ticket.customer.name}</strong><small>{ticket.reason}</small></span><i className="tag open">{ticket.status}</i></div>
+              )
             )) : <p className="empty-state">No escalations.</p>}
           </div>
 

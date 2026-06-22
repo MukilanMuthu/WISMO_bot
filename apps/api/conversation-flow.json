@@ -683,6 +683,22 @@
             "type": "prompt",
             "prompt": "Customer explicitly asks to speak with a human agent, a supervisor, or escalation, instead of giving an order number"
           }
+        },
+        {
+          "id": "ask-list-orders",
+          "destination_node_id": "list_orders_start",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer says they don't know their order number, or asks to hear/see their recent orders instead of giving a number"
+          }
+        },
+        {
+          "id": "ask_order_number-offtopic",
+          "destination_node_id": "off_topic_strike",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer response is unrelated to their order, tracking, delivery, address change, or escalation request (small talk, questions about the AI/API keys/system internals, pranks, or anything else off-topic) and does not give an order number or ask to hear recent orders"
+          }
         }
       ],
       "else_edge": {
@@ -828,6 +844,14 @@
             "type": "prompt",
             "prompt": "Customer explicitly asks to speak with a human agent, a supervisor, or escalation, or says the bot/AI can't help them"
           }
+        },
+        {
+          "id": "order_loaded-offtopic",
+          "destination_node_id": "off_topic_strike",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer response is unrelated to their order, tracking, delivery, address change, or escalation request (small talk, questions about the AI/API keys/system internals, pranks, or anything else off-topic) and does not give an order number or ask to hear recent orders"
+          }
         }
       ],
       "else_edge": {
@@ -968,6 +992,14 @@
           "transition_condition": {
             "type": "prompt",
             "prompt": "Customer asks to repeat"
+          }
+        },
+        {
+          "id": "speak_listed_orders-offtopic",
+          "destination_node_id": "off_topic_strike",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer response is unrelated to their order, tracking, delivery, address change, or escalation request (small talk, questions about the AI/API keys/system internals, pranks, or anything else off-topic) and does not give an order number or ask to hear recent orders"
           }
         }
       ]
@@ -1220,29 +1252,32 @@
     },
     {
       "id": "speak_not_shipped_ticket",
-      "type": "conversation",
+      "type": "branch",
       "name": "Speak not-shipped ticket",
       "display_position": {
         "x": 2700,
         "y": -1400
       },
-      "instruction": {
-        "type": "prompt",
-        "text": "If {{result_code}} is TICKET_CREATED: apologise for the delay, explain there has been an issue with shipping, that a support ticket has been created and an agent will reach out shortly, and give the ticket number {{ticket_number}}. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
-      },
       "edges": [
         {
-          "id": "speak_not_shipped_ticket-more",
-          "destination_node_id": "order_loaded",
+          "id": "speak_not_shipped_ticket-dup-edge",
+          "destination_node_id": "speak_not_shipped_ticket_dup",
           "transition_condition": {
-            "type": "prompt",
-            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "DUPLICATE_OPEN"
+              }
+            ]
           }
         }
       ],
       "else_edge": {
-        "id": "speak_not_shipped_ticket-end",
-        "destination_node_id": "end_call",
+        "id": "speak_not_shipped_ticket-created-edge",
+        "destination_node_id": "speak_not_shipped_ticket_created",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"
@@ -1308,29 +1343,32 @@
     },
     {
       "id": "speak_provider_ticket",
-      "type": "conversation",
+      "type": "branch",
       "name": "Speak provider ticket",
       "display_position": {
         "x": 3000,
         "y": -1750
       },
-      "instruction": {
-        "type": "prompt",
-        "text": "If {{result_code}} is TICKET_CREATED: apologise that the tracking provider is unavailable right now, tell the customer a support ticket has been created and an agent will follow up, and give the ticket number {{ticket_number}}. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
-      },
       "edges": [
         {
-          "id": "speak_provider_ticket-more",
-          "destination_node_id": "order_loaded",
+          "id": "speak_provider_ticket-dup-edge",
+          "destination_node_id": "speak_provider_ticket_dup",
           "transition_condition": {
-            "type": "prompt",
-            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "DUPLICATE_OPEN"
+              }
+            ]
           }
         }
       ],
       "else_edge": {
-        "id": "speak_provider_ticket-end",
-        "destination_node_id": "end_call",
+        "id": "speak_provider_ticket-created-edge",
+        "destination_node_id": "speak_provider_ticket_created",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"
@@ -1539,29 +1577,32 @@
     },
     {
       "id": "speak_delayed_ticket",
-      "type": "conversation",
+      "type": "branch",
       "name": "Speak delayed ticket",
       "display_position": {
         "x": 3600,
         "y": -1750
       },
-      "instruction": {
-        "type": "prompt",
-        "text": "If {{result_code}} is TICKET_CREATED: apologise for the delay, explain the delivery is overdue and the courier has not posted online updates, give the ticket number {{ticket_number}}, and say an agent will follow up. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
-      },
       "edges": [
         {
-          "id": "speak_delayed_ticket-more",
-          "destination_node_id": "order_loaded",
+          "id": "speak_delayed_ticket-dup-edge",
+          "destination_node_id": "speak_delayed_ticket_dup",
           "transition_condition": {
-            "type": "prompt",
-            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "DUPLICATE_OPEN"
+              }
+            ]
           }
         }
       ],
       "else_edge": {
-        "id": "speak_delayed_ticket-end",
-        "destination_node_id": "end_call",
+        "id": "speak_delayed_ticket-created-edge",
+        "destination_node_id": "speak_delayed_ticket_created",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"
@@ -1959,29 +2000,32 @@
     },
     {
       "id": "speak_addr_low",
-      "type": "conversation",
+      "type": "branch",
       "name": "Speak address ticket (low)",
       "display_position": {
         "x": 3300,
         "y": -800
       },
-      "instruction": {
-        "type": "prompt",
-        "text": "If {{result_code}} is TICKET_CREATED: tell the customer a support ticket has been created to update their address, give the ticket number {{ticket_number}}, and say the address will be updated shortly. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
-      },
       "edges": [
         {
-          "id": "speak_addr_low-more",
-          "destination_node_id": "order_loaded",
+          "id": "speak_addr_low-dup-edge",
+          "destination_node_id": "speak_addr_low_dup",
           "transition_condition": {
-            "type": "prompt",
-            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "DUPLICATE_OPEN"
+              }
+            ]
           }
         }
       ],
       "else_edge": {
-        "id": "speak_addr_low-end",
-        "destination_node_id": "end_call",
+        "id": "speak_addr_low-created-edge",
+        "destination_node_id": "speak_addr_low_created",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"
@@ -2031,29 +2075,32 @@
     },
     {
       "id": "speak_addr_mid",
-      "type": "conversation",
+      "type": "branch",
       "name": "Speak address ticket (mid-shipment)",
       "display_position": {
         "x": 3300,
         "y": -600
       },
-      "instruction": {
-        "type": "prompt",
-        "text": "If {{result_code}} is TICKET_CREATED: tell the customer a support ticket has been created to change the address mid-shipment, give the ticket number {{ticket_number}}, and warn that changing the address after dispatch may incur higher costs. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
-      },
       "edges": [
         {
-          "id": "speak_addr_mid-more",
-          "destination_node_id": "order_loaded",
+          "id": "speak_addr_mid-dup-edge",
+          "destination_node_id": "speak_addr_mid_dup",
           "transition_condition": {
-            "type": "prompt",
-            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "DUPLICATE_OPEN"
+              }
+            ]
           }
         }
       ],
       "else_edge": {
-        "id": "speak_addr_mid-end",
-        "destination_node_id": "end_call",
+        "id": "speak_addr_mid-created-edge",
+        "destination_node_id": "speak_addr_mid_created",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"
@@ -2181,29 +2228,32 @@
     },
     {
       "id": "speak_nd_ticket",
-      "type": "conversation",
+      "type": "branch",
       "name": "Speak delivered-not-received ticket",
       "display_position": {
         "x": 2700,
         "y": 450
       },
-      "instruction": {
-        "type": "prompt",
-        "text": "If {{result_code}} is TICKET_CREATED: apologise, explain that because tracking shows delivered but they haven't received it, you've opened a high-priority support ticket and an agent will call them back, and give the ticket number {{ticket_number}}. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
-      },
       "edges": [
         {
-          "id": "speak_nd_ticket-more",
-          "destination_node_id": "order_loaded",
+          "id": "speak_nd_ticket-dup-edge",
+          "destination_node_id": "speak_nd_ticket_dup",
           "transition_condition": {
-            "type": "prompt",
-            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "DUPLICATE_OPEN"
+              }
+            ]
           }
         }
       ],
       "else_edge": {
-        "id": "speak_nd_ticket-end",
-        "destination_node_id": "end_call",
+        "id": "speak_nd_ticket-created-edge",
+        "destination_node_id": "speak_nd_ticket_created",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"
@@ -2263,29 +2313,32 @@
     },
     {
       "id": "speak_nd_delay_ticket",
-      "type": "conversation",
+      "type": "branch",
       "name": "Speak delay follow-up ticket",
       "display_position": {
         "x": 2700,
         "y": 750
       },
-      "instruction": {
-        "type": "prompt",
-        "text": "If {{result_code}} is TICKET_CREATED: apologise for the delay, tell the customer a support ticket has been opened for the delayed delivery and an agent will follow up, and give the ticket number {{ticket_number}}. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
-      },
       "edges": [
         {
-          "id": "speak_nd_delay_ticket-more",
-          "destination_node_id": "order_loaded",
+          "id": "speak_nd_delay_ticket-dup-edge",
+          "destination_node_id": "speak_nd_delay_ticket_dup",
           "transition_condition": {
-            "type": "prompt",
-            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "DUPLICATE_OPEN"
+              }
+            ]
           }
         }
       ],
       "else_edge": {
-        "id": "speak_nd_delay_ticket-end",
-        "destination_node_id": "end_call",
+        "id": "speak_nd_delay_ticket-created-edge",
+        "destination_node_id": "speak_nd_delay_ticket_created",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"
@@ -2379,29 +2432,32 @@
     },
     {
       "id": "tw_speak_delivered",
-      "type": "conversation",
+      "type": "branch",
       "name": "Speak tracking-wrong (delivered)",
       "display_position": {
         "x": 2400,
         "y": 1850
       },
-      "instruction": {
-        "type": "prompt",
-        "text": "If {{result_code}} is TICKET_CREATED: apologise, tell the customer a high-priority support ticket has been created, give the ticket number {{ticket_number}}, and say an agent will contact them shortly and handle this urgently. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
-      },
       "edges": [
         {
-          "id": "tw_speak_delivered-more",
-          "destination_node_id": "order_loaded",
+          "id": "tw_speak_delivered-dup-edge",
+          "destination_node_id": "tw_speak_delivered_dup",
           "transition_condition": {
-            "type": "prompt",
-            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "DUPLICATE_OPEN"
+              }
+            ]
           }
         }
       ],
       "else_edge": {
-        "id": "tw_speak_delivered-end",
-        "destination_node_id": "end_call",
+        "id": "tw_speak_delivered-created-edge",
+        "destination_node_id": "tw_speak_delivered_created",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"
@@ -2430,29 +2486,32 @@
     },
     {
       "id": "tw_speak_transit",
-      "type": "conversation",
+      "type": "branch",
       "name": "Speak tracking-wrong (in transit)",
       "display_position": {
         "x": 2400,
         "y": 1950
       },
-      "instruction": {
-        "type": "prompt",
-        "text": "If {{result_code}} is TICKET_CREATED: apologise, tell the customer a support ticket has been created, give the ticket number {{ticket_number}}, and say an agent will contact them shortly. If {{result_code}} is DUPLICATE_OPEN: tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
-      },
       "edges": [
         {
-          "id": "tw_speak_transit-more",
-          "destination_node_id": "order_loaded",
+          "id": "tw_speak_transit-dup-edge",
+          "destination_node_id": "tw_speak_transit_dup",
           "transition_condition": {
-            "type": "prompt",
-            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "DUPLICATE_OPEN"
+              }
+            ]
           }
         }
       ],
       "else_edge": {
-        "id": "tw_speak_transit-end",
-        "destination_node_id": "end_call",
+        "id": "tw_speak_transit-created-edge",
+        "destination_node_id": "tw_speak_transit_created",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"
@@ -2486,6 +2545,14 @@
           "transition_condition": {
             "type": "prompt",
             "prompt": "Customer has a different order-related request (tracking, address, etc.) and has not yet made two requests this call"
+          }
+        },
+        {
+          "id": "anything_else-offtopic",
+          "destination_node_id": "off_topic_strike",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer response is unrelated to their order, tracking, delivery, address change, or escalation request (small talk, questions about the AI/API keys/system internals, pranks, or anything else off-topic) and does not give an order number or ask to hear recent orders"
           }
         }
       ],
@@ -2554,29 +2621,32 @@
     },
     {
       "id": "speak_escalation_ticket",
-      "type": "conversation",
+      "type": "branch",
       "name": "Speak escalation ticket",
       "display_position": {
         "x": 1800,
         "y": -300
       },
-      "instruction": {
-        "type": "prompt",
-        "text": "If {{result_code}} is TICKET_CREATED: tell the customer you've opened a support ticket so a human executive can call them back, and give the ticket number {{ticket_number}}. If {{result_code}} is DUPLICATE_OPEN: tell them there's already an open ticket (number {{ticket_number}}) for this and a human executive will contact them soon. Either way, then ask if there is anything else you can help with."
-      },
       "edges": [
         {
-          "id": "speak-escalation-more",
-          "destination_node_id": "order_loaded",
+          "id": "speak_escalation_ticket-dup-edge",
+          "destination_node_id": "speak_escalation_ticket_dup",
           "transition_condition": {
-            "type": "prompt",
-            "prompt": "Customer raises another order-related request (tracking, address, etc.) and an order is loaded"
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{result_code}}",
+                "operator": "==",
+                "right": "DUPLICATE_OPEN"
+              }
+            ]
           }
         }
       ],
       "else_edge": {
-        "id": "speak-escalation-end",
-        "destination_node_id": "end_call",
+        "id": "speak_escalation_ticket-created-edge",
+        "destination_node_id": "speak_escalation_ticket_created",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"
@@ -2602,6 +2672,14 @@
           "transition_condition": {
             "type": "prompt",
             "prompt": "Customer gives an order number"
+          }
+        },
+        {
+          "id": "ask_escalation_order-offtopic",
+          "destination_node_id": "off_topic_strike",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer response is unrelated to their order, tracking, delivery, address change, or escalation request (small talk, questions about the AI/API keys/system internals, pranks, or anything else off-topic) and does not give an order number or ask to hear recent orders"
           }
         }
       ],
@@ -2701,11 +2779,749 @@
             "type": "prompt",
             "prompt": "Customer gives an order number this time"
           }
+        },
+        {
+          "id": "ask_escalation_order_retry-offtopic",
+          "destination_node_id": "off_topic_strike",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer response is unrelated to their order, tracking, delivery, address change, or escalation request (small talk, questions about the AI/API keys/system internals, pranks, or anything else off-topic) and does not give an order number or ask to hear recent orders"
+          }
         }
       ],
       "else_edge": {
         "id": "askescalationretry-refused",
         "destination_node_id": "escalation_ticket_no_order",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "off_topic_strike",
+      "type": "extract_dynamic_variables",
+      "name": "Off-topic strike counter",
+      "display_position": {
+        "x": -300,
+        "y": 300
+      },
+      "variables": [
+        {
+          "type": "string",
+          "name": "off_topic_strikes",
+          "description": "The customer's running off-topic strike count for this call. Current value is {{off_topic_strikes}} (treat empty or missing as 0). Output the current value plus 1, capped at 2, as a plain digit string ('1' or '2').",
+          "examples": [
+            "1",
+            "2"
+          ],
+          "required": true
+        }
+      ],
+      "always_edge": {
+        "id": "offtopicstrike-always",
+        "destination_node_id": "off_topic_branch",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Always"
+        }
+      }
+    },
+    {
+      "id": "off_topic_branch",
+      "type": "branch",
+      "name": "Off-topic strike check",
+      "display_position": {
+        "x": 0,
+        "y": 300
+      },
+      "edges": [
+        {
+          "id": "offtopic-final",
+          "destination_node_id": "end_call",
+          "transition_condition": {
+            "type": "equation",
+            "operator": "||",
+            "equations": [
+              {
+                "left": "{{off_topic_strikes}}",
+                "operator": "==",
+                "right": "2"
+              }
+            ]
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "offtopic-warn",
+        "destination_node_id": "off_topic_redirect",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "off_topic_redirect",
+      "type": "conversation",
+      "name": "Off-topic redirect (final warning)",
+      "display_position": {
+        "x": 300,
+        "y": 300
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer, briefly and once, that this agent can only help with order status, tracking, delivery, address changes, or escalation to a human, and ask if they want help with one of those. Do not answer the off-topic question."
+      },
+      "edges": [
+        {
+          "id": "offtopicredirect-strike",
+          "destination_node_id": "off_topic_strike",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer response is unrelated to their order, tracking, delivery, address change, or escalation request (small talk, questions about the AI/API keys/system internals, pranks, or anything else off-topic) and does not give an order number or ask to hear recent orders"
+          }
+        },
+        {
+          "id": "offtopicredirect-number",
+          "destination_node_id": "capture_order_number",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer gives an order number"
+          }
+        },
+        {
+          "id": "offtopicredirect-escalation",
+          "destination_node_id": "ask_escalation_order",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer asks to speak with a human, supervisor, or escalation"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "offtopicredirect-else",
+        "destination_node_id": "known_order_check",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_not_shipped_ticket_created",
+      "type": "conversation",
+      "name": "Speak not-shipped ticket (created)",
+      "display_position": {
+        "x": 2700,
+        "y": -1480
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise for the delay, explain there has been an issue with shipping, that a support ticket has been created and an agent will reach out shortly, and give the ticket number {{ticket_number}}. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_not_shipped_ticket-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_not_shipped_ticket-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_not_shipped_ticket_dup",
+      "type": "conversation",
+      "name": "Speak not-shipped ticket (duplicate)",
+      "display_position": {
+        "x": 2700,
+        "y": -1320
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_not_shipped_ticket-more__speak_not_shipped_ticket_dup",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_not_shipped_ticket-end__speak_not_shipped_ticket_dup",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_provider_ticket_created",
+      "type": "conversation",
+      "name": "Speak provider ticket (created)",
+      "display_position": {
+        "x": 3000,
+        "y": -1830
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise that the tracking provider is unavailable right now, tell the customer a support ticket has been created and an agent will follow up, and give the ticket number {{ticket_number}}. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_provider_ticket-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_provider_ticket-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_provider_ticket_dup",
+      "type": "conversation",
+      "name": "Speak provider ticket (duplicate)",
+      "display_position": {
+        "x": 3000,
+        "y": -1670
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_provider_ticket-more__speak_provider_ticket_dup",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_provider_ticket-end__speak_provider_ticket_dup",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_delayed_ticket_created",
+      "type": "conversation",
+      "name": "Speak delayed ticket (created)",
+      "display_position": {
+        "x": 3600,
+        "y": -1830
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise for the delay, explain the delivery is overdue and the courier has not posted online updates, give the ticket number {{ticket_number}}, and say an agent will follow up. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_delayed_ticket-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_delayed_ticket-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_delayed_ticket_dup",
+      "type": "conversation",
+      "name": "Speak delayed ticket (duplicate)",
+      "display_position": {
+        "x": 3600,
+        "y": -1670
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_delayed_ticket-more__speak_delayed_ticket_dup",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_delayed_ticket-end__speak_delayed_ticket_dup",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_addr_low_created",
+      "type": "conversation",
+      "name": "Speak address ticket (low) (created)",
+      "display_position": {
+        "x": 3300,
+        "y": -880
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer a support ticket has been created to update their address, give the ticket number {{ticket_number}}, and say the address will be updated shortly. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_addr_low-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_addr_low-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_addr_low_dup",
+      "type": "conversation",
+      "name": "Speak address ticket (low) (duplicate)",
+      "display_position": {
+        "x": 3300,
+        "y": -720
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_addr_low-more__speak_addr_low_dup",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_addr_low-end__speak_addr_low_dup",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_addr_mid_created",
+      "type": "conversation",
+      "name": "Speak address ticket (mid-shipment) (created)",
+      "display_position": {
+        "x": 3300,
+        "y": -680
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer a support ticket has been created to change the address mid-shipment, give the ticket number {{ticket_number}}, and warn that changing the address after dispatch may incur higher costs. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_addr_mid-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_addr_mid-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_addr_mid_dup",
+      "type": "conversation",
+      "name": "Speak address ticket (mid-shipment) (duplicate)",
+      "display_position": {
+        "x": 3300,
+        "y": -520
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_addr_mid-more__speak_addr_mid_dup",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_addr_mid-end__speak_addr_mid_dup",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_nd_ticket_created",
+      "type": "conversation",
+      "name": "Speak delivered-not-received ticket (created)",
+      "display_position": {
+        "x": 2700,
+        "y": 370
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise, explain that because tracking shows delivered but they haven't received it, you've opened a high-priority support ticket and an agent will call them back, and give the ticket number {{ticket_number}}. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_nd_ticket-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_nd_ticket-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_nd_ticket_dup",
+      "type": "conversation",
+      "name": "Speak delivered-not-received ticket (duplicate)",
+      "display_position": {
+        "x": 2700,
+        "y": 530
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_nd_ticket-more__speak_nd_ticket_dup",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_nd_ticket-end__speak_nd_ticket_dup",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_nd_delay_ticket_created",
+      "type": "conversation",
+      "name": "Speak delay follow-up ticket (created)",
+      "display_position": {
+        "x": 2700,
+        "y": 670
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise for the delay, tell the customer a support ticket has been opened for the delayed delivery and an agent will follow up, and give the ticket number {{ticket_number}}. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_nd_delay_ticket-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_nd_delay_ticket-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_nd_delay_ticket_dup",
+      "type": "conversation",
+      "name": "Speak delay follow-up ticket (duplicate)",
+      "display_position": {
+        "x": 2700,
+        "y": 830
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak_nd_delay_ticket-more__speak_nd_delay_ticket_dup",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak_nd_delay_ticket-end__speak_nd_delay_ticket_dup",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "tw_speak_delivered_created",
+      "type": "conversation",
+      "name": "Speak tracking-wrong (delivered) (created)",
+      "display_position": {
+        "x": 2400,
+        "y": 1770
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise, tell the customer a high-priority support ticket has been created, give the ticket number {{ticket_number}}, and say an agent will contact them shortly and handle this urgently. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "tw_speak_delivered-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "tw_speak_delivered-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "tw_speak_delivered_dup",
+      "type": "conversation",
+      "name": "Speak tracking-wrong (delivered) (duplicate)",
+      "display_position": {
+        "x": 2400,
+        "y": 1930
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "tw_speak_delivered-more__tw_speak_delivered_dup",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "tw_speak_delivered-end__tw_speak_delivered_dup",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "tw_speak_transit_created",
+      "type": "conversation",
+      "name": "Speak tracking-wrong (in transit) (created)",
+      "display_position": {
+        "x": 2400,
+        "y": 1870
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Apologise, tell the customer a support ticket has been created, give the ticket number {{ticket_number}}, and say an agent will contact them shortly. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "tw_speak_transit-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "tw_speak_transit-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "tw_speak_transit_dup",
+      "type": "conversation",
+      "name": "Speak tracking-wrong (in transit) (duplicate)",
+      "display_position": {
+        "x": 2400,
+        "y": 2030
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell them a support ticket (number {{ticket_number}}) for this is already open and a human executive will contact them soon. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "tw_speak_transit-more__tw_speak_transit_dup",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.)"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "tw_speak_transit-end__tw_speak_transit_dup",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_escalation_ticket_created",
+      "type": "conversation",
+      "name": "Speak escalation ticket (created)",
+      "display_position": {
+        "x": 1800,
+        "y": -380
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell the customer you've opened a support ticket so a human executive can call them back, and give the ticket number {{ticket_number}}. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak-escalation-more",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.) and an order is loaded"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak-escalation-end",
+        "destination_node_id": "end_call",
+        "transition_condition": {
+          "type": "prompt",
+          "prompt": "Else"
+        }
+      }
+    },
+    {
+      "id": "speak_escalation_ticket_dup",
+      "type": "conversation",
+      "name": "Speak escalation ticket (duplicate)",
+      "display_position": {
+        "x": 1800,
+        "y": -220
+      },
+      "instruction": {
+        "type": "prompt",
+        "text": "Tell them there's already an open ticket (number {{ticket_number}}) for this and a human executive will contact them soon. Then ask if there is anything else you can help with."
+      },
+      "edges": [
+        {
+          "id": "speak-escalation-more__speak_escalation_ticket_dup",
+          "destination_node_id": "order_loaded",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Customer raises another order-related request (tracking, address, etc.) and an order is loaded"
+          }
+        }
+      ],
+      "else_edge": {
+        "id": "speak-escalation-end__speak_escalation_ticket_dup",
+        "destination_node_id": "end_call",
         "transition_condition": {
           "type": "prompt",
           "prompt": "Else"

@@ -65,7 +65,6 @@ export default function OrderDetailPage() {
           <div className="detail-status"><Truck size={22} /><span><small>Fulfillment</small><strong>{order.fulfillmentStatus.replaceAll("_", " ")}</strong></span></div>
           <div><small>Carrier</small><strong>{order.shippingCarrier}</strong></div>
           <div><small>Tracking number</small><strong>{order.trackingNumber}</strong></div>
-          <a href={order.trackingUrl} target="_blank" rel="noreferrer">Carrier page <ExternalLink size={15} /></a>
         </section>
 
         <div className="detail-grid">
