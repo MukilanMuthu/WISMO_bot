@@ -80,6 +80,17 @@ Every custom function's edit dialog has a "Store Fields as Variables" section (b
 
 Map `order_id` to the same variable name on both `get_order_details` and `resolve_order` — both represent "the order the conversation is currently about," and whichever function resolves it last should be the value subsequent calls (like `get_tracking_status`) implicitly rely on server-side.
 
+> **Source of truth is now `apps/api/conversation-flow.json`, pushed by `scripts/push-conversation-flow.ts`.** The mappings above are encoded in each tool's `response_variables` block, so you no longer hand-enter them in the dashboard — editing the JSON and re-running the push script is the workflow. The expanded flow (4 entry points) adds these backend-computed branch flags, all set the same way:
+>
+> | Functions | Variables (response path = same name) | Used by |
+> | --- | --- | --- |
+> | `resolve_order`, `get_order_details` | `paid`, `fulfilled`, `shipped`, `overdue`, `shipped_late`, `has_notes` | payment/shipped/ETA gating before any tracking call |
+> | `get_tracking_status` | `delivered`, `delivered_late`, `has_tracking`, `overdue`, `shipped_late`, `has_notes`, `paid`, `shipped`, `tracking_requested`, `apology`, plus speakable `last_event`, `last_checkpoint`, `delivery_date`, `eta`, `notes` | every tracking branch + the "not delivered" intent reusing them with no second lookup |
+> | `verify_identity` | `result_code` (`VERIFIED` / `NOT_VERIFIED`) | address-change email verification (2 structural retries) |
+> | every `create_*_ticket` | `result_code`, `ticket_id`, `apology` | speak the ticket id; `apology` drives the End Call apology |
+>
+> Booleans arrive as `"true"`/`"false"` strings, so transitions compare `{{paid}} = "true"` etc. `tracking_requested`/`apology`/counters are seeded to defaults per call in `apps/api/src/routes/retell.ts` so a recycled agent never inherits a prior call's state.
+
 ### 2b. Node graph diagram
 
 ```mermaid

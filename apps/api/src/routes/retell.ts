@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { requireUser, type AuthedRequest } from "@/middleware/auth";
 import { asyncHandler } from "@/middleware/error";
 import { getRetellArgs, getRetellCallId, requireRetellFunctionAuth, requireRetellWebhookAuth } from "@/middleware/retell-auth";
-import { createEscalationTicket, getOrderDetails, listRecentOrders, resolveOrder, trackingForCall } from "@/lib/wismo";
+import { createEscalationTicket, getOrderDetails, listRecentOrders, resolveOrder, trackingForCall, verifyIdentity } from "@/lib/wismo";
 
 const router = Router();
 
@@ -40,6 +40,11 @@ router.post(
           customer_name: customer.name,
           order_id: input.orderId ?? "",
           has_known_order: input.orderId ? "true" : "false",
+          // Reset per-call flow state so a recycled agent never inherits a prior call's flags.
+          tracking_requested: "false",
+          apology: "false",
+          anything_else_count: "0",
+          verify_count: "0",
         },
       }),
     });
@@ -85,6 +90,7 @@ const resolveSchema = z.object({ orderNumber: z.string().min(1).max(50) }).passt
 const listSchema = z.object({ action: z.enum(["START", "MORE", "REPEAT"]) }).passthrough();
 const trackingSchema = z.object({ orderId: z.string().optional() }).passthrough();
 const ticketSchema = z.object({ reason: z.string().min(3).max(500) }).passthrough();
+const verifySchema = z.object({ email: z.string().min(3).max(200) }).passthrough();
 
 // Resolve spoken order number while backend owns retry counting and customer scoping.
 router.post(
@@ -127,6 +133,17 @@ router.post(
     const body = req.body as Record<string, unknown>;
     const input = trackingSchema.parse(getRetellArgs(body));
     res.json(await trackingForCall(getRetellCallId(body), input.orderId));
+  }),
+);
+
+// Verify the caller by email against the loaded order before allowing an address-change request.
+router.post(
+  "/functions/verify-identity",
+  requireRetellFunctionAuth,
+  asyncHandler(async (req, res) => {
+    const body = req.body as Record<string, unknown>;
+    const input = verifySchema.parse(getRetellArgs(body));
+    res.json(await verifyIdentity(getRetellCallId(body), input.email));
   }),
 );
 

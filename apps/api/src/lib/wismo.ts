@@ -9,6 +9,7 @@ import {
   normalizeOrderNumber,
   nextListingState,
   nextMoreOffenseState,
+  orderStatusFlags,
   trackingTargetsForOrder,
 } from "./wismo-guardrails";
 
@@ -29,6 +30,8 @@ function orderDetailsPayload(order: Prisma.OrderGetPayload<{ include: { lineItem
     orderTotal: order.orderTotal.toString(),
     isSplitShipment,
     shipments: targets.map((target) => ({ carrierName: target.carrierName, trackingId: target.trackingId, itemNames: target.itemNames })),
+    // Pre-tracking branch flags for the Retell flow (no tracking lookup yet).
+    ...orderStatusFlags(order),
   };
 }
 
@@ -142,13 +145,28 @@ export async function trackingForCall(retellCallId: string, requestedOrderId?: s
       }),
     );
 
+    const flags = orderStatusFlags(
+      order,
+      shipments.map((s) => ({ status: s.status, latestEventAt: s.latestEventAt })),
+    );
+    const first = shipments[0];
     return {
       code: "TRACKING_FOUND" as const,
       orderNumber: order.orderNumber,
       isSplitShipment: selection.isSplitShipment,
       notes: order.notes,
       shipments,
-      tracking: shipments[0],
+      tracking: first,
+      // Branch flags + speakable fields, flattened to top level so each maps to one
+      // Retell response-variable path. apology here is only the delivered-late case (a speak-only
+      // branch with no ticket); every ticket function sets apology itself.
+      ...flags,
+      tracking_requested: true,
+      apology: "delivered_late" in flags && flags.delivered_late === true,
+      last_event: first?.latestEvent ?? null,
+      last_checkpoint: first?.location ?? null,
+      delivery_date: first?.latestEventAt ?? null,
+      eta: first?.estimatedDelivery ?? null,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "TRACKING_ERROR";
@@ -160,7 +178,8 @@ export async function trackingForCall(retellCallId: string, requestedOrderId?: s
 export async function createEscalationTicket(retellCallId: string, reason: string) {
   const call = await requireVoiceCall(retellCallId);
   const existing = await db.supportTicket.findFirst({ where: { callId: call.id, status: "OPEN" } });
-  if (existing) return { code: "TICKET_CREATED" as const, ticketId: existing.id, existing: true };
+  // apology=true on every ticket: reaching a ticket always means something went wrong, so the end node apologises.
+  if (existing) return { code: "TICKET_CREATED" as const, ticketId: existing.id, existing: true, apology: true };
 
   const ticket = await db.$transaction(async (tx: Prisma.TransactionClient) => {
     const created = await tx.supportTicket.create({ data: { customerId: call.customerId, callId: call.id, reason } });
@@ -168,5 +187,18 @@ export async function createEscalationTicket(retellCallId: string, reason: strin
     return created;
   });
 
-  return { code: "TICKET_CREATED" as const, ticketId: ticket.id, existing: false };
+  return { code: "TICKET_CREATED" as const, ticketId: ticket.id, existing: false, apology: true };
+}
+
+// Verify the caller against the loaded order by email only (no phone). Stateless: the Retell flow
+// owns the retry budget. Comparison is trimmed + case-insensitive to survive spoken-email quirks.
+export async function verifyIdentity(retellCallId: string, email: string) {
+  const call = await requireVoiceCall(retellCallId);
+  if (!call.orderId) return { code: "ORDER_REQUIRED" as const };
+
+  const order = await db.order.findFirst({ where: { id: call.orderId, customerId: call.customerId } });
+  if (!order) return { code: "ORDER_NOT_FOUND" as const };
+
+  const match = order.email.trim().toLowerCase() === email.trim().toLowerCase();
+  return { code: match ? ("VERIFIED" as const) : ("NOT_VERIFIED" as const) };
 }

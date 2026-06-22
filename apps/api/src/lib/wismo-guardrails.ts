@@ -57,6 +57,45 @@ export function trackingTargetsForOrder(order: TrackingOrder) {
   };
 }
 
+type StatusOrder = {
+  financialStatus: string;
+  fulfillmentStatus: string;
+  shippedAt: Date | null;
+  estimatedDelivery: Date | null;
+  notes: string | null;
+};
+
+type ShipmentStatus = { status: string; latestEventAt: string | null };
+
+// Compute every branch boolean the Retell flow splits on, server-side, so the agent never does
+// date math. Pass `shipments` only after a tracking lookup; without it the tracking-derived flags
+// (delivered/has_tracking/delivered_late) are omitted and stay unset on the call. `now` is injectable
+// for tests. These map 1:1 to the conversation-flow variables of the same name.
+export function orderStatusFlags(order: StatusOrder, shipments?: ShipmentStatus[], now: Date = new Date()) {
+  const paid = order.financialStatus === "PAID";
+  const fulfilled = order.fulfillmentStatus === "FULFILLED";
+  const shipped = order.shippedAt != null;
+  const overdue = order.estimatedDelivery != null && now > order.estimatedDelivery;
+  const shipped_late = !shipped && overdue; // shipping itself is overdue (doc's H6)
+  const has_notes = !!order.notes && order.notes.trim() !== "";
+
+  const base = { paid, fulfilled, shipped, overdue, shipped_late, has_notes };
+  if (!shipments) return base;
+
+  const delivered = shipments.length > 0 && shipments.every((s) => s.status?.toLowerCase() === "delivered");
+  const has_tracking = shipments.some((s) => s.latestEventAt != null);
+  const deliveredAt = delivered
+    ? shipments.reduce<Date | null>((latest, s) => {
+        if (!s.latestEventAt) return latest;
+        const d = new Date(s.latestEventAt);
+        return !latest || d > latest ? d : latest;
+      }, null)
+    : null;
+  const delivered_late = delivered && order.estimatedDelivery != null && deliveredAt != null && deliveredAt > order.estimatedDelivery;
+
+  return { ...base, delivered, has_tracking, delivered_late };
+}
+
 // Calculate listing counters without database side effects so billing limits remain directly testable.
 export function nextListingState(cursor: number, repeatCount: number, action: "START" | "MORE" | "REPEAT") {
   return {

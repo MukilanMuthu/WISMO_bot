@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { LISTING_REPEAT_LIMIT, normalizeOrderNumber, nextListingState, nextMoreOffenseState, ORDERS_PER_PAGE, trackingTargetsForOrder } from "./wismo-guardrails";
+import { LISTING_REPEAT_LIMIT, normalizeOrderNumber, nextListingState, nextMoreOffenseState, ORDERS_PER_PAGE, orderStatusFlags, trackingTargetsForOrder } from "./wismo-guardrails";
+
+const NOW = new Date("2026-06-22T00:00:00Z");
+const PAST = new Date("2026-06-10T00:00:00Z");
+const FUTURE = new Date("2026-07-01T00:00:00Z");
+const baseOrder = { financialStatus: "PAID", fulfillmentStatus: "FULFILLED", shippedAt: PAST, estimatedDelivery: FUTURE, notes: null as string | null };
 
 // Cover speech normalization and voice-cost counters without requiring PostgreSQL.
 describe("WISMO guardrails", () => {
@@ -44,6 +49,35 @@ describe("WISMO guardrails", () => {
     });
 
     expect(result).toMatchObject({ isSplitShipment: false, targets: [{ trackingId: "ORDER-TRACKING", trackingMoreCreated: true }] });
+  });
+
+  it("omits tracking-derived flags before a tracking lookup", () => {
+    const flags = orderStatusFlags({ ...baseOrder }, undefined, NOW);
+    expect(flags).toEqual({ paid: true, fulfilled: true, shipped: true, overdue: false, shipped_late: false, has_notes: false });
+    expect("delivered" in flags).toBe(false);
+  });
+
+  it("flags a delivered-late shipment", () => {
+    const flags = orderStatusFlags(
+      { ...baseOrder, estimatedDelivery: PAST },
+      [{ status: "delivered", latestEventAt: "2026-06-20T00:00:00Z" }],
+      NOW,
+    );
+    expect(flags).toMatchObject({ delivered: true, delivered_late: true, has_tracking: true, overdue: true });
+  });
+
+  it("flags overdue shipping when not yet shipped (shipped_late)", () => {
+    const flags = orderStatusFlags({ ...baseOrder, shippedAt: null, estimatedDelivery: PAST }, undefined, NOW);
+    expect(flags).toMatchObject({ shipped: false, overdue: true, shipped_late: true });
+  });
+
+  it("shipped within ETA with no scans is neither delivered nor overdue", () => {
+    const flags = orderStatusFlags(baseOrder, [{ status: "pending", latestEventAt: null }], NOW);
+    expect(flags).toMatchObject({ delivered: false, has_tracking: false, overdue: false, shipped_late: false });
+  });
+
+  it("treats unpaid orders as not paid", () => {
+    expect(orderStatusFlags({ ...baseOrder, financialStatus: "REFUNDED" }, undefined, NOW).paid).toBe(false);
   });
 
   it("groups line items by tracking ID for a split shipment", () => {
