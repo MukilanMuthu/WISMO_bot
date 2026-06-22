@@ -371,7 +371,10 @@
       "name": "Will ship soon",
       "display_position": { "x": 2400, "y": -1250 },
       "instruction": { "type": "prompt", "text": "Reassure the customer that their paid order is expected to ship soon and is still within the estimated delivery window. Be brief." },
-      "always_edge": { "id": "shipsoon-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "edges": [
+        { "id": "shipsoon-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order has not arrived / was not delivered / disputes the status" } }
+      ],
+      "else_edge": { "id": "shipsoon-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
     },
     {
       "id": "ticket_order_not_shipped",
@@ -448,7 +451,10 @@
       "name": "Shipped, no scans yet",
       "display_position": { "x": 3300, "y": -1500 },
       "instruction": { "type": "prompt", "text": "Tell the customer the order has shipped but the carrier has not posted any scans yet, and it is still within the estimated delivery window. Be brief and reassuring." },
-      "always_edge": { "id": "shipsoon2-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "edges": [
+        { "id": "shipsoon2-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order has not arrived / was not delivered / disputes the status" } }
+      ],
+      "else_edge": { "id": "shipsoon2-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
     },
     {
       "id": "speak_tracking_within",
@@ -456,7 +462,10 @@
       "name": "Speak tracking (within ETA)",
       "display_position": { "x": 3300, "y": -1400 },
       "instruction": { "type": "prompt", "text": "Tell the customer in plain language what's happening with the parcel: the latest event {{last_event}}, where it was {{last_checkpoint}}, and that it is expected by {{eta}}. Never read out any tracking URL." },
-      "always_edge": { "id": "trackwithin-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "edges": [
+        { "id": "trackwithin-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order has not arrived / was not delivered / disputes the status" } }
+      ],
+      "else_edge": { "id": "trackwithin-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
     },
     {
       "id": "e1_overdue_hastracking",
@@ -502,15 +511,21 @@
       "name": "Speak tracking (overdue, not delivered)",
       "display_position": { "x": 3600, "y": -1650 },
       "instruction": { "type": "prompt", "text": "Tell the customer the latest tracking event {{last_event}} and where it was {{last_checkpoint}}. It is running behind the estimate but is still in transit. Never read out any tracking URL." },
-      "always_edge": { "id": "trackoverdue-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "edges": [
+        { "id": "trackoverdue-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order has not arrived / was not delivered / disputes the status" } }
+      ],
+      "else_edge": { "id": "trackoverdue-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
     },
     {
       "id": "speak_delivered_late",
       "type": "conversation",
       "name": "Speak delivered (late)",
       "display_position": { "x": 3600, "y": -1550 },
-      "instruction": { "type": "prompt", "text": "Apologise that it arrived later than estimated. Confirm the parcel was marked delivered: latest event {{last_event}} at {{last_checkpoint}} on {{delivery_date}}. Never read out any tracking URL." },
-      "always_edge": { "id": "deliveredlate-always", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Always" } }
+      "instruction": { "type": "prompt", "text": "Tell the customer the parcel is marked delivered: {{last_event}} at {{last_checkpoint}} on {{delivery_date}}. If {{delivered_late}} is true, apologise that it arrived later than estimated; otherwise do not apologise. Never read out any tracking URL. Then let them respond." },
+      "edges": [
+        { "id": "deliveredlate-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the parcel has not actually arrived, was not delivered, or disputes the delivered status" } }
+      ],
+      "else_edge": { "id": "deliveredlate-else", "destination_node_id": "anything_else", "transition_condition": { "type": "prompt", "prompt": "Else" } }
     },
 
     {
@@ -786,9 +801,10 @@
       "type": "conversation",
       "name": "Anything else? (max 2 per call)",
       "display_position": { "x": 3900, "y": 0 },
-      "instruction": { "type": "prompt", "text": "You may ask whether there's anything else AT MOST twice in the whole call. If you have already helped with two separate requests this call, do NOT ask again — say a brief goodbye and end the call. Otherwise, ask if there's anything else you can help with. If they raise a new order request, handle it; if they're done or say goodbye, end the call." },
+      "instruction": { "type": "prompt", "text": "Ask whether there's anything else you can help with. You may ask this AT MOST twice in the whole call; if you have already asked twice, do not ask again — give a brief goodbye and end the call. If the customer is still raising the same unresolved delivery problem, do not end — keep helping. If they're genuinely done or say goodbye, end the call." },
       "edges": [
-        { "id": "anyelse-more", "destination_node_id": "order_loaded", "transition_condition": { "type": "prompt", "prompt": "Customer has a new order-related request and has not yet made two requests this call" } }
+        { "id": "anyelse-dispute", "destination_node_id": "nd_delivered_check", "transition_condition": { "type": "prompt", "prompt": "Customer says the order still has not arrived / was not delivered, or otherwise disputes the delivery and wants it resolved" } },
+        { "id": "anyelse-more", "destination_node_id": "order_loaded", "transition_condition": { "type": "prompt", "prompt": "Customer has a different order-related request (tracking, address, etc.) and has not yet made two requests this call" } }
       ],
       "else_edge": { "id": "anyelse-end", "destination_node_id": "end_call", "transition_condition": { "type": "prompt", "prompt": "Else" } }
     },
